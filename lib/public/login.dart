@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:social_content_manager/home/home.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -8,14 +9,17 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+
+   Map<String,String> fieldData = {};
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
             image: DecorationImage(
-                image: AssetImage("/assets/TranshumansKiddo.png"),
-                fit: BoxFit.cover)),
+                image: AssetImage("assets/TranshumansKiddo.png"),
+                fit: BoxFit.fitHeight)),
         child: Center(
           child: Container(
             width: 356,
@@ -23,18 +27,28 @@ class _LoginState extends State<Login> {
             padding: EdgeInsets.all(20),
             child: Card(
               child: Padding(
-                padding: EdgeInsets.all(20),
+                padding: EdgeInsets.all(30),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
-                    const TextField(
+                     TextField(
+                      onChanged: (value){
+                        setState(() {
+                          fieldData["auth"] = value;
+                        });
+                      },
                       decoration: InputDecoration(
                         labelText: 'Username or Email',
                       ),
                     ),
                     SizedBox(height: 16.0),
                     TextField(
+                      onChanged: (value){
+                        setState(() {
+                          fieldData["password"] = value;
+                        });
+                      },
                       decoration: InputDecoration(
                         labelText: 'Password',
                       ),
@@ -43,7 +57,11 @@ class _LoginState extends State<Login> {
                     SizedBox(height: 24.0),
                     ElevatedButton(
                       onPressed: () {
-                        // Add login functionality here
+                        print(fieldData);
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Home(key: Key('Home'))));
                       },
                       child: Text('Login'),
                     ),
