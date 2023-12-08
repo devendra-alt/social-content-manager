@@ -19,7 +19,8 @@ class _LoginState extends State<Login> {
         decoration: BoxDecoration(
             image: DecorationImage(
                 image: AssetImage("assets/TranshumansKiddo.png"),
-                fit: BoxFit.fitHeight)),
+                fit: BoxFit.fitHeight)
+        ),
         child: Center(
           child: Container(
             width: 356,
@@ -61,7 +62,10 @@ class _LoginState extends State<Login> {
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => Home(key: Key('Home'))));
+                                builder: (context) => Home(key: Key('Home')
+                                )
+                            )
+                        );
                       },
                       child: Text('Login'),
                     ),
