@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   file_picker: ^6.1.1
   graphql_flutter: ^5.1.2
+  share: ^2.0.4
   flutter_secure_storage: ^9.0.0
 
 dev_dependencies:
@@ -64,6 +65,8 @@ flutter:
     - assets/TranshumansKiddo.png
     - assets/options.png
     - assets/db1.jpg
+    - assets/frame.png
+    - assets/frame.jpg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
