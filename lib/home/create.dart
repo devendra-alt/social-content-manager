@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:social_content_manager/home/display.dart';
 
 class Create extends StatefulWidget {
   const Create({Key? key, required this.title}) : super(key: key);
@@ -17,7 +18,8 @@ class _CreateState extends State<Create> {
   final _formKey = GlobalKey<FormState>();
 
   String _name = '';
-  String _dod = '';
+  String _address = '';
+  String _message = '';
 
   DateTime selectedDate = DateTime.now();
 
@@ -37,68 +39,123 @@ class _CreateState extends State<Create> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Center(
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Card(
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.45,
-                    height: 200,
-                    child: filePath != null
-                        ? Image(
-                            image: FileImage(
-                              filePath != null ? File(filePath!) : File(''),
-                            ),
-                            width: MediaQuery.of(context).size.width * 0.4,
-                            height: MediaQuery.of(context).size.height * 0.4,
-                          )
-                        : ElevatedButton(
-                            onPressed: () async {
-                              FilePickerResult? result = await FilePicker
-                                  .platform
-                                  .pickFiles(allowMultiple: false);
-                              if (result != null && result.files.isNotEmpty) {
-                                setState(() {
-                                  filePath = result.files.first.path;
-                                });
-                              } else {
-                                print('No file selected');
-                              }
-                            },
-                            child: Icon(Icons.add),
-                            style: ElevatedButton.styleFrom(
-                              maximumSize: Size(200, 50), // Set minimum size
-                            ),
-                          ),
-                  ),
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Column(
+                  children: [
+                    if (filePath != null)
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        height: 200,
+                        child: Image.file(
+                          File(filePath!),
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    else
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          FilePickerResult? result =
+                              await FilePicker.platform.pickFiles(
+                            allowMultiple: false,
+                          );
+                          if (result != null && result.files.isNotEmpty) {
+                            setState(() {
+                              filePath = result.files.first.path!;
+                            });
+                          } else {
+                            print('No file selected');
+                          }
+                        },
+                        icon: Icon(Icons.add),
+                        label: Text('Add Image'),
+                      ),
+                  ],
                 ),
-                Card(
-                  child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.45,
-                      height: 200,
-                      child: Column(
-                        children: [
-                          Text(
-                            'Date of Death', // Display selected date
-                            style: TextStyle(fontSize: 16),
-                            textAlign: TextAlign.left,
-                          ),
-                          SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: () => _selectedDate(
-                                context), // Call the date picker function
-                            child: Text('Select Date'),
-                          ),
-                        ],
-                      )),
-                )
-              ],
-            ),
-          ],
+              ),
+              SizedBox(height: 20),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Name'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your name';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _name = value!;
+                },
+              ),
+              SizedBox(height: 20),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Address'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your address';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _address = value!;
+                },
+              ),
+              SizedBox(height: 20),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Message'),
+                maxLines: 3,
+                onSaved: (value) {
+                  _message = value!;
+                },
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Date of Death:',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => _selectedDate(context),
+                    child: Text('Select Date'),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  final form = _formKey.currentState;
+                  if (form!.validate()) {
+                    form.save();
+                    // Process the data or submit the form
+                    // For example, you can send the data to an API here
+                    // _name, _address, _message, selectedDate, filePath can be used here
+                    Navigator.replace(context,
+                        oldRoute: ModalRoute.of(context)!,
+                        newRoute: MaterialPageRoute(
+                            builder: (context) => DisplayPerson(
+                                    person: Person(
+                                  name: _name,
+                                  address: _address,
+                                  message: _message,
+                                  dateOfDeath: selectedDate,
+                                  imagePath: filePath ?? '',
+                                ))));
+                  }
+                },
+                child: Text('Submit'),
+              ),
+            ],
+          ),
         ),
       ),
     );
