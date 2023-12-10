@@ -1,23 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:social_content_manager/public/login.dart';
 
+
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
 
-  // This widget is the root of your application.
+  MyApp({Key? key}) : super(key:key) ;
+
+  final HttpLink httpLink = HttpLink('https://eksamaj.in/meelangraphql ');
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: '',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+
+    final GraphQLClient client = GraphQLClient(
+      link: httpLink,
+      cache: GraphQLCache(),
+    );
+
+    return GraphQLProvider(
+      client: ValueNotifier(client),
+      child:MaterialApp(
+        title: '',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: const MyHomePage(title: 'Social Content Managment!'),
+      )
     );
   }
 }
@@ -32,6 +45,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return Login(key: Key('Login'));// This trailing comma makes auto-formatting nicer for build methods.
+    return Login(key: Key('Login'));
   }
 }
