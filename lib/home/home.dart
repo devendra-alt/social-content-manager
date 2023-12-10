@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:social_content_manager/agora/agora.dart';
 import 'package:social_content_manager/home/create.dart';
 
 class Home extends StatefulWidget {
@@ -26,8 +27,7 @@ class _HomeState extends State<Home> {
                 icon: Icon(
                   Icons.person,
                   color: Colors.white,
-                )
-            )
+                ))
           ],
         ),
         body: Column(
@@ -124,10 +124,13 @@ class _HomeState extends State<Home> {
                   ),
                 ],
               ),
-              SizedBox(height: 20,),
+              SizedBox(
+                height: 20,
+              ),
               Align(
                 alignment: Alignment.centerLeft,
-                child:  Text(' Your Templates'.toUpperCase(),style: TextStyle(fontWeight: FontWeight.w700)),
+                child: Text(' Your Templates'.toUpperCase(),
+                    style: TextStyle(fontWeight: FontWeight.w700)),
               ),
               SizedBox(height: 20),
               SizedBox(
@@ -137,28 +140,34 @@ class _HomeState extends State<Home> {
                   itemCount: 3,
                   itemBuilder: (BuildContext context, int index) {
                     return GestureDetector(
-                        onTap: (){},
+                        onTap: () {},
                         child: Container(
-                        width: 150,
-                        height: 150,
-                        margin: EdgeInsets.symmetric(horizontal: 8),
-                        color: Colors.purple,
-                        child: Center(
-                          child: Text(
-                            'Item ${index + 1}',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
+                          width: 150,
+                          height: 150,
+                          margin: EdgeInsets.symmetric(horizontal: 8),
+                          color: Colors.purple,
+                          child: Center(
+                            child: Text(
+                              'Item ${index + 1}',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                    );
+                        ));
                   },
                 ),
-              )
-            ]
-        )
-    );
+              ),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                AgoraClient(key: Key('Agora Client'))));
+                  },
+                  child: Icon(Icons.arrow_right))
+            ]));
   }
 }
