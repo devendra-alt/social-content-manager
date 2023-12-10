@@ -18,8 +18,8 @@ class _LoginState extends State<Login> {
       body: Container(
         decoration: BoxDecoration(
             image: DecorationImage(
-                image: AssetImage("assets/TranshumansKiddo.png"),
-                fit: BoxFit.fitHeight)
+                image: AssetImage("assets/temple.avif"),
+                fit: BoxFit.cover)
         ),
         child: Center(
           child: Container(
@@ -27,11 +27,14 @@ class _LoginState extends State<Login> {
             height: 400,
             padding: EdgeInsets.all(20),
             child: Card(
+              color: Theme.of(context).canvasColor.withOpacity(0.9),
+              
               child: Padding(
                 padding: EdgeInsets.all(30),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
+
                   children: <Widget>[
                      TextField(
                       onChanged: (value){
@@ -58,7 +61,6 @@ class _LoginState extends State<Login> {
                     SizedBox(height: 24.0),
                     ElevatedButton(
                       onPressed: () {
-                        print(fieldData);
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
