@@ -1,46 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:social_content_manager/public/login.dart';
+import 'package:social_content_manager/service/auth/secure.dart';
 
-void main() {
+void main() async {
+  await initHiveForFlutter();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
 
-  final HttpLink httpLink = HttpLink('https://eksamaj.in/meelangraphql ');
-
   @override
   Widget build(BuildContext context) {
-    final GraphQLClient client = GraphQLClient(
-      link: httpLink,
-      cache: GraphQLCache(),
+    final AuthLink authLink =
+        AuthLink(getToken: () async => await readFromSecureStorage("token"));
+    final ValueNotifier<GraphQLClient> client = ValueNotifier(
+      GraphQLClient(
+        link: authLink.concat(HttpLink('https://eksamaj.in/meelangraphql')),
+        cache: GraphQLCache(store: HiveStore()),
+      ),
     );
 
     return GraphQLProvider(
-        client: ValueNotifier(client),
-        child: MaterialApp(
-          title: '',
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-            useMaterial3: true,
-          ),
-          home: const MyHomePage(title: 'Social Content Managment!'),
-        ));
+      client: client,
+      child: MaterialApp(
+        title: '',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: const MyHomePage(title: 'Social Content Management!'),
+      ),
+    );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
 
-class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return Login(key: Key('Login'));
+    return Login(key: const Key('Login'));
   }
 }
