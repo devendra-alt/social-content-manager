@@ -13,7 +13,7 @@ class AgoraClient extends StatefulWidget {
 
 class _AgoraClientState extends State<AgoraClient> {
   String channelName = "Live Shradhanjali";
-  String token = "92021a3b0f1f420d94bbce69585b24ca";
+  String token = "d22161b093b442daaec74293acb860ab";
 
   int uid = 0;
 
@@ -24,15 +24,13 @@ class _AgoraClientState extends State<AgoraClient> {
   late RtcEngine agoraEngine;
 
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
-  GlobalKey<ScaffoldMessengerState>(); // Global key to access the scaffold
-
+      GlobalKey<ScaffoldMessengerState>(); // Global key to access the scaffold
   @override
   void initState() {
     super.initState();
     // Set up an instance of Agora engine
     setupVideoSDKEngine();
   }
-
 
   // Build UI
   @override
@@ -91,7 +89,6 @@ class _AgoraClientState extends State<AgoraClient> {
     );
   }
 
-
   Widget _videoPanel() {
     if (!_isJoined) {
       return const Text(
@@ -124,7 +121,6 @@ class _AgoraClientState extends State<AgoraClient> {
       }
     }
   }
-
 
   Future<void> setupVideoSDKEngine() async {
     // retrieve or request camera and microphone permissions
@@ -159,10 +155,13 @@ class _AgoraClientState extends State<AgoraClient> {
             _remoteUid = null;
           });
         },
+        onError: (ErrorCodeType err, String msg) {
+          debugPrint(
+              'Error rtc engin =============================> Code = ${err.name} MSG = $msg');
+        },
       ),
     );
   }
-
 
   void join() async {
     // Set channel options
@@ -174,7 +173,7 @@ class _AgoraClientState extends State<AgoraClient> {
         clientRoleType: ClientRoleType.clientRoleBroadcaster,
         channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
       );
-      if(agoraEngine!=null){
+      if (agoraEngine != null) {
         await agoraEngine.startPreview();
       }
     } else {
@@ -207,6 +206,7 @@ class _AgoraClientState extends State<AgoraClient> {
     });
     agoraEngine.leaveChannel();
   }
+
 // Set the client role when a radio button is selected
   void _handleRadioValueChange(bool? value) async {
     setState(() {
