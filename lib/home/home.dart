@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:social_content_manager/agora/agora.dart';
 import 'package:social_content_manager/home/create.dart';
+import 'package:social_content_manager/user/profile.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -23,7 +24,12 @@ class _HomeState extends State<Home> {
           ),
           actions: [
             IconButton(
-                onPressed: () => {},
+                onPressed: () => {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => UserProfilePage()))
+                    },
                 icon: Icon(
                   Icons.person,
                   color: Colors.white,
