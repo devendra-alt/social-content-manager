@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:social_content_manager/home/home.dart';
+import 'package:social_content_manager/service/auth/secure.dart';
+import 'package:social_content_manager/utils/snackBar.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -19,7 +21,7 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Mutation(
       options: MutationOptions(
-        document: gql('''
+        document: gql("""
           mutation Login(\$email: String!, \$password: String!) {
             login(input: { identifier: \$email, password: \$password }) {
               jwt
@@ -30,24 +32,23 @@ class _LoginState extends State<Login> {
               }
             }
           }
-        '''),
-        onCompleted: (dynamic resultData) {
-          print('Mutation completed: $resultData');
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Home(key: Key('Home')),
-            ),
-          );
-        },
+        """),
         onError: (error) {
+          CustomSnackBar.showSnackBar(context, 'login error');
           print("Mutation Error: $error");
+        },
+        onCompleted: (dynamic resultData) {
+          try {
+            print(resultData);
+          } catch (e) {
+            print("devendra $e");
+          }
         },
       ),
       builder: (
-          RunMutation runMutation,
-          QueryResult? result,
-          ) {
+        RunMutation runMutation,
+        QueryResult? result,
+      ) {
         return Scaffold(
           body: Container(
             decoration: BoxDecoration(
@@ -108,7 +109,7 @@ class _LoginState extends State<Login> {
                           SizedBox(height: 24.0),
                           ElevatedButton(
                             onPressed: () {
-                              _loginPressed(runMutation);
+                              _loginPressed(runMutation, context);
                             },
                             child: Text('Login'),
                           ),
@@ -125,13 +126,17 @@ class _LoginState extends State<Login> {
     );
   }
 
-  void _loginPressed(RunMutation runMutation) {
+  void _loginPressed(RunMutation runMutation, context) {
     if (_formKey.currentState!.validate()) {
       if (_authValue != null && _passwordValue != null) {
-        runMutation({
-          'email': _authValue,
-          'password': _passwordValue,
-        });
+        try {
+          runMutation({
+            'email': _authValue,
+            'password': _passwordValue,
+          });
+        } catch (e) {
+          CustomSnackBar.showSnackBar(context, 'login error');
+        }
       }
     }
   }
