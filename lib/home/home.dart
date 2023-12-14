@@ -221,9 +221,7 @@ class _HomeState extends State<Home> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    RenderDeceasedList())
-                                    );
+                                builder: (context) => RenderDeceasedList()));
                       },
                       child: Row(
                         children: [Text("People"), Icon(Icons.arrow_right)],
