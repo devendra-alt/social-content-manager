@@ -3,10 +3,11 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:social_content_manager/home/home.dart';
 import 'package:social_content_manager/public/login.dart';
 import 'package:social_content_manager/service/auth/secure.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() async {
   await initHiveForFlutter();
-  runApp(MyApp());
+  runApp(ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -52,7 +53,9 @@ class MyHomePage extends StatelessWidget {
         } else if (snapshot.hasData && snapshot.data != null) {
           return Home(key: key);
         } else {
-          return Login(key: key);
+          return Login(
+            key: key,
+          );
         }
       },
     );
