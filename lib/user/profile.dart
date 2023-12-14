@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:social_content_manager/public/login.dart';
 import 'package:social_content_manager/service/auth/Secure.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -16,9 +17,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   void logout() async {
-    final token = await readFromSecureStorage('token');
-    print(token);
-    print('Logged out!');
+    deleteFromSecureStorage("token");
+    Navigator.pushAndRemoveUntil(context,
+        MaterialPageRoute(builder: (context) => Login()), (route) => false);
   }
 
   @override
@@ -119,12 +120,3 @@ class ChangePasswordScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-

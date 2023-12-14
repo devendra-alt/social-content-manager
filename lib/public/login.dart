@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:social_content_manager/home/home.dart';
@@ -15,11 +13,13 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final Key key = GlobalKey();
 
   String? _authValue;
   String? _passwordValue;
   String? _usernameValue;
   bool _isLoginTab = true;
+  bool _isObscured = true;
 
   @override
   Widget build(BuildContext context) {
@@ -36,15 +36,27 @@ class _LoginState extends State<Login> {
               }
             }
           }
-          """) : gql(""""""),
+          """) : gql("""
+            mutation SignUp(\$username:String!,\$email:String!,\$password:String!){
+            register(input:{username:\$username,email:\$email,password:\$password}){
+              jwt
+              user{
+                id
+                username
+                email
+              }
+            }
+          }
+          """),
           onError: (error) {
             CustomSnackBar.showSnackBar(context, "Login Error!");
           },
           onCompleted: (dynamic resultData) {
             try {
-              print(resultData);
               final token = resultData["login"]["jwt"];
               writeToSecureStorage("token", token);
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => Home()));
             } catch (e) {
               CustomSnackBar.showSnackBar(context, "Error in fething data");
             }
@@ -122,12 +134,12 @@ class _LoginState extends State<Login> {
                                   },
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'Please enter Username or Email';
+                                      return 'Please enter Email';
                                     }
                                     return null;
                                   },
                                   decoration: InputDecoration(
-                                    labelText: 'Username or Email',
+                                    labelText: 'Email',
                                   ),
                                 ),
                                 SizedBox(height: 16.0),
@@ -145,8 +157,24 @@ class _LoginState extends State<Login> {
                                   },
                                   decoration: InputDecoration(
                                     labelText: 'Password',
+                                    suffixIcon: IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _isObscured = !_isObscured;
+                                        });
+                                      },
+                                      icon: Icon(
+                                        _isObscured
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                        color: _isObscured
+                                            ? Colors.grey
+                                            : Colors
+                                                .blue, // Change the color based on visibility
+                                      ),
+                                    ),
                                   ),
-                                  obscureText: true,
+                                  obscureText: _isObscured,
                                 ),
                                 SizedBox(height: 24.0),
                                 ElevatedButton(
@@ -175,9 +203,7 @@ class _LoginState extends State<Login> {
   }
 
   void _loginPressed(context, RunMutation runMutation) {
-    print(_formKey.currentState!.validate());
     if (_formKey.currentState!.validate()) {
-      print("$_authValue $_passwordValue");
       if (_authValue != null && _passwordValue != null) {
         try {
           runMutation({'email': _authValue, 'password': _passwordValue});
@@ -192,7 +218,17 @@ class _LoginState extends State<Login> {
     if (_formKey.currentState!.validate()) {
       if (_authValue != null &&
           _passwordValue != null &&
-          _usernameValue != null) {}
+          _usernameValue != null) {
+        try {
+          runMutation({
+            'username': _usernameValue,
+            'email': _authValue,
+            'password': _passwordValue
+          });
+        } catch (e) {
+          CustomSnackBar.showSnackBar(context, 'Login Error!');
+        }
+      }
     }
   }
 
