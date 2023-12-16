@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:social_content_manager/home/home.dart';
+import 'package:social_content_manager/main.dart';
 import 'package:social_content_manager/service/auth/secure.dart';
+import 'package:social_content_manager/service/providers/userProvider.dart';
 import 'package:social_content_manager/utils/snackBar.dart';
 
-class Login extends StatefulWidget {
+class Login extends ConsumerStatefulWidget {
   const Login({Key? key}) : super(key: key);
 
   @override
   _LoginState createState() => _LoginState();
 }
 
-class _LoginState extends State<Login> {
+class _LoginState extends ConsumerState<Login> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final Key key = GlobalKey();
 
@@ -23,9 +26,12 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return Mutation(
-      options: MutationOptions(
-          document: _isLoginTab ? gql("""
+    return Consumer(
+      builder: (context, ref, child) {
+        final userState = ref.read(userProvider.notifier);
+        return Mutation(
+          options: MutationOptions(
+              document: _isLoginTab ? gql("""
            mutation Login(\$email: String!, \$password: String!) {
             login(input: { identifier: \$email, password: \$password }) {
               jwt
@@ -48,155 +54,164 @@ class _LoginState extends State<Login> {
             }
           }
           """),
-          onError: (error) {
-            CustomSnackBar.showSnackBar(context, "Login Error!");
-          },
-          onCompleted: (dynamic resultData) {
-            try {
-              final token = resultData["login"]["jwt"];
-              writeToSecureStorage("token", token);
-              Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (context) => Home()));
-            } catch (e) {
-              CustomSnackBar.showSnackBar(context, "Error in fething data");
-            }
-          }),
-      builder: (
-        RunMutation runMutation,
-        QueryResult? result,
-      ) {
-        return DefaultTabController(
-          length: 2,
-          child: Scaffold(
-            body: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("assets/temple.avif"),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: Center(
-                child: Container(
-                  width: 356,
-                  height: _isLoginTab ? 400 : 500,
-                  padding: EdgeInsets.all(20),
-                  child: Card(
-                    color: Theme.of(context).canvasColor.withOpacity(0.9),
-                    child: Padding(
-                      padding: EdgeInsets.all(30),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          TabBar(
-                            tabs: const [
-                              Tab(
-                                text: 'Login',
-                              ),
-                              Tab(
-                                text: 'Sign Up',
-                              ),
-                            ],
-                            onTap: (index) {
-                              setState(() {
-                                _isLoginTab = index == 0;
-                                _clearFormValues();
-                              });
-                            },
-                          ),
-                          SizedBox(height: 20.0),
-                          Form(
-                            key: _formKey,
-                            child: Column(
-                              children: <Widget>[
-                                if (!_isLoginTab)
-                                  TextFormField(
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _usernameValue = value;
-                                      });
-                                    },
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter Username';
-                                      }
-                                      return null;
-                                    },
-                                    decoration: InputDecoration(
-                                      labelText: 'Username',
-                                    ),
+              onError: (error) {
+                CustomSnackBar.showSnackBar(context, "Login Error!");
+              },
+              onCompleted: (dynamic resultData) {
+                try {
+                  final token = resultData["login"]["jwt"];
+                  writeToSecureStorage("token", token);
+                  final id = int.parse(resultData["login"]["user"]["id"]);
+
+                  final username = resultData["login"]["user"]["username"];
+                  final email = resultData["login"]["user"]["email"];
+                  userState.addData(email, username, id);
+                  Navigator.pushReplacement(
+                      context, MaterialPageRoute(builder: (context) => Home()));
+                } catch (e) {
+                  CustomSnackBar.showSnackBar(context, "Error in fething data");
+                }
+              }),
+          builder: (
+            RunMutation runMutation,
+            QueryResult? result,
+          ) {
+            return DefaultTabController(
+              length: 2,
+              child: Scaffold(
+                body: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage("assets/temple.avif"),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: 356,
+                      height: _isLoginTab ? 400 : 500,
+                      padding: EdgeInsets.all(20),
+                      child: Card(
+                        color: Theme.of(context).canvasColor.withOpacity(0.9),
+                        child: Padding(
+                          padding: EdgeInsets.all(30),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: <Widget>[
+                              TabBar(
+                                tabs: const [
+                                  Tab(
+                                    text: 'Login',
                                   ),
-                                TextFormField(
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _authValue = value;
-                                    });
-                                  },
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter Email';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                    labelText: 'Email',
+                                  Tab(
+                                    text: 'Sign Up',
                                   ),
-                                ),
-                                SizedBox(height: 16.0),
-                                TextFormField(
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _passwordValue = value;
-                                    });
-                                  },
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter Password';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                    labelText: 'Password',
-                                    suffixIcon: IconButton(
-                                      onPressed: () {
+                                ],
+                                onTap: (index) {
+                                  setState(() {
+                                    _isLoginTab = index == 0;
+                                    _clearFormValues();
+                                  });
+                                },
+                              ),
+                              SizedBox(height: 20.0),
+                              Form(
+                                key: _formKey,
+                                child: Column(
+                                  children: <Widget>[
+                                    if (!_isLoginTab)
+                                      TextFormField(
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _usernameValue = value;
+                                          });
+                                        },
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Please enter Username';
+                                          }
+                                          return null;
+                                        },
+                                        decoration: InputDecoration(
+                                          labelText: 'Username',
+                                        ),
+                                      ),
+                                    TextFormField(
+                                      onChanged: (value) {
                                         setState(() {
-                                          _isObscured = !_isObscured;
+                                          _authValue = value;
                                         });
                                       },
-                                      icon: Icon(
-                                        _isObscured
-                                            ? Icons.visibility
-                                            : Icons.visibility_off,
-                                        color: _isObscured
-                                            ? Colors.grey
-                                            : Colors
-                                                .blue, // Change the color based on visibility
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter Email';
+                                        }
+                                        return null;
+                                      },
+                                      decoration: InputDecoration(
+                                        labelText: 'Email',
                                       ),
                                     ),
-                                  ),
-                                  obscureText: _isObscured,
+                                    SizedBox(height: 16.0),
+                                    TextFormField(
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _passwordValue = value;
+                                        });
+                                      },
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter Password';
+                                        }
+                                        return null;
+                                      },
+                                      decoration: InputDecoration(
+                                        labelText: 'Password',
+                                        suffixIcon: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _isObscured = !_isObscured;
+                                            });
+                                          },
+                                          icon: Icon(
+                                            _isObscured
+                                                ? Icons.visibility
+                                                : Icons.visibility_off,
+                                            color: _isObscured
+                                                ? Colors.grey
+                                                : Colors
+                                                    .blue, // Change the color based on visibility
+                                          ),
+                                        ),
+                                      ),
+                                      obscureText: _isObscured,
+                                    ),
+                                    SizedBox(height: 24.0),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        _isLoginTab
+                                            ? _loginPressed(
+                                                context, runMutation)
+                                            : _signUpPressed(
+                                                context, runMutation);
+                                      },
+                                      child: Text(
+                                          _isLoginTab ? 'Login' : 'Sign Up'),
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(height: 24.0),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _isLoginTab
-                                        ? _loginPressed(context, runMutation)
-                                        : _signUpPressed(context, runMutation);
-                                  },
-                                  child:
-                                      Text(_isLoginTab ? 'Login' : 'Sign Up'),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -208,7 +223,7 @@ class _LoginState extends State<Login> {
         try {
           runMutation({'email': _authValue, 'password': _passwordValue});
         } catch (e) {
-          CustomSnackBar.showSnackBar(context, 'Login Error!');
+          CustomSnackBar.showSnackBar(context, 'Login Error!!');
         }
       }
     }

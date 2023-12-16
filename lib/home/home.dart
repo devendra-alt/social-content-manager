@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_content_manager/agora/agora.dart';
 import 'package:social_content_manager/home/create.dart';
+import 'package:social_content_manager/home/template.dart';
 import 'package:social_content_manager/user/profile.dart';
 import 'package:social_content_manager/utils/card.dart';
 
@@ -12,28 +14,21 @@ class DeceasedPerson {
   DeceasedPerson({required this.name, required this.imageUrl});
 }
 
-class Home extends StatefulWidget {
-  Home({Key? key}) : super(key: key);
+final List<DeceasedPerson> deceasedList = [
+  DeceasedPerson(name: 'John Doe', imageUrl: 'assets/john_doe.jpg'),
+  DeceasedPerson(name: 'Jane Smith', imageUrl: 'assets/jane_smith.jpg'),
+  DeceasedPerson(name: 'John Doe', imageUrl: 'assets/john_doe.jpg'),
+  DeceasedPerson(name: 'Jane Smith', imageUrl: 'assets/jane_smith.jpg'),
+  DeceasedPerson(name: 'John Doe', imageUrl: 'assets/john_doe.jpg'),
+  DeceasedPerson(name: 'Jane Smith', imageUrl: 'assets/jane_smith.jpg'),
+  // Add more individuals here
+];
+
+class Home extends ConsumerWidget {
+  const Home({Key? key}) : super(key: key);
+
   @override
-  _HomeState createState() => _HomeState();
-
-  // List of deceased individuals (replace this with your actual data)
-}
-
-final List<String> items = List.generate(10, (index) => 'Item ${index + 1}');
-
-class _HomeState extends State<Home> {
-  final List<DeceasedPerson> deceasedList = [
-    DeceasedPerson(name: 'John Doe', imageUrl: 'assets/john_doe.jpg'),
-    DeceasedPerson(name: 'Jane Smith', imageUrl: 'assets/jane_smith.jpg'),
-    DeceasedPerson(name: 'John Doe', imageUrl: 'assets/john_doe.jpg'),
-    DeceasedPerson(name: 'Jane Smith', imageUrl: 'assets/jane_smith.jpg'),
-    DeceasedPerson(name: 'John Doe', imageUrl: 'assets/john_doe.jpg'),
-    DeceasedPerson(name: 'Jane Smith', imageUrl: 'assets/jane_smith.jpg'),
-    // Add more individuals here
-  ];
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
@@ -63,41 +58,48 @@ class _HomeState extends State<Home> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 Card(
-                    child: Column(
-                  children: <Widget>[
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.45,
-                      padding: EdgeInsets.only(left: 16),
-                      height: 200,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text('CREATE TEMPLET',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.black)),
-                          SizedBox(height: 20),
-                          Text('create our custom templet'),
-                          SizedBox(height: 20),
-                          OutlinedButton(
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.45,
+                        padding: EdgeInsets.only(left: 16),
+                        height: 200,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text('CREATE TEMPLET',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.black)),
+                            SizedBox(height: 20),
+                            Text('create our custom templet'),
+                            SizedBox(height: 20),
+                            OutlinedButton(
                               onPressed: () {
                                 Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            Create(title: 'Add content')));
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        Create(title: 'Add content'),
+                                  ),
+                                );
                               },
-                              child: Icon(Icons.arrow_right_alt))
-                        ],
-                      ),
-                    )
-                  ],
-                )),
+                              child: Icon(Icons.arrow_right_alt),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
                 Card(
                   child: GestureDetector(
                       onTap: () {
-                        print('hello Gesture');
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Template()));
                       },
                       child: Column(
                         children: <Widget>[
@@ -200,35 +202,36 @@ class _HomeState extends State<Home> {
             ),
             SizedBox(height: 20),
             Container(
-                margin: EdgeInsets.all(20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    AgoraClient(key: Key('Agora Client'))));
-                      },
-                      child: Row(
-                        children: [Text("Live"), Icon(Icons.arrow_right)],
-                      ),
+              margin: EdgeInsets.all(20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  AgoraClient(key: Key('Agora Client'))));
+                    },
+                    child: Row(
+                      children: const [Text("Live"), Icon(Icons.arrow_right)],
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => RenderDeceasedList()));
-                      },
-                      child: Row(
-                        children: [Text("People"), Icon(Icons.arrow_right)],
-                      ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RenderDeceasedList()));
+                    },
+                    child: Row(
+                      children: const [Text("People"), Icon(Icons.arrow_right)],
                     ),
-                  ],
-                )),
+                  ),
+                ],
+              ),
+            ),
             SizedBox(height: 20),
           ],
         ),
