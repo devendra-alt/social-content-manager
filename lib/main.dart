@@ -11,7 +11,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,25 +24,27 @@ class MyApp extends StatelessWidget {
       ),
     );
 
-    return GraphQLProvider(
-      client: client,
-      child: MaterialApp(
-        title: 'social app',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
+    return ProviderScope(
+      child: GraphQLProvider(
+        client: client,
+        child: MaterialApp(
+          title: 'social app',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
+          ),
+          home: const MyHomePage(),
         ),
-        home: const MyHomePage(),
       ),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends ConsumerWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return FutureBuilder(
       future: readFromSecureStorage("token"),
       builder: (context, snapshot) {
@@ -51,7 +53,7 @@ class MyHomePage extends StatelessWidget {
             body: Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasData && snapshot.data != null) {
-          return Home(key: key);
+          return Home();
         } else {
           return Login(
             key: key,
