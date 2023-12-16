@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_content_manager/public/login.dart';
 import 'package:social_content_manager/service/auth/Secure.dart';
+import 'package:social_content_manager/service/providers/userProvider.dart';
 
-class UserProfilePage extends StatefulWidget {
+class UserProfilePage extends ConsumerStatefulWidget {
   @override
   _UserProfilePageState createState() => _UserProfilePageState();
 }
 
-class _UserProfilePageState extends State<UserProfilePage> {
-  String _username = 'John Doe';
-  String _email = 'example@example.com';
+class _UserProfilePageState extends ConsumerState<UserProfilePage> {
   String _imageUrl = 'https://via.placeholder.com/150';
 
   void changePassword() {
@@ -24,50 +24,58 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('User Profile'),
-        actions: [
-          IconButton(
-            onPressed: logout,
-            icon: Icon(Icons.logout),
+    return Consumer(
+      builder: (context, ref, child) {
+        final userState = ref.watch(userProvider);
+        String _username = userState.username;
+        String _email = userState.email;
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('User Profile'),
+            actions: [
+              IconButton(
+                onPressed: logout,
+                icon: Icon(Icons.logout),
+              ),
+            ],
           ),
-        ],
-      ),
-      body: Container(
-        alignment: Alignment.center,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage(_imageUrl),
+          body: Container(
+            alignment: Alignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                CircleAvatar(
+                  radius: 50,
+                  backgroundImage: NetworkImage(_imageUrl),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  _username,
+                  style: TextStyle(fontSize: 18),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  _email,
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ChangePasswordScreen(changePassword),
+                      ),
+                    );
+                  },
+                  child: Text('Change Password'),
+                ),
+              ],
             ),
-            SizedBox(height: 20),
-            Text(
-              _username,
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 10),
-            Text(
-              _email,
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChangePasswordScreen(changePassword),
-                  ),
-                );
-              },
-              child: Text('Change Password'),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
