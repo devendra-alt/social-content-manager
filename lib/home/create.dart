@@ -139,17 +139,21 @@ class _CreateState extends State<Create> {
                     // Process the data or submit the form
                     // For example, you can send the data to an API here
                     // _name, _address, _message, selectedDate, filePath can be used here
-                    Navigator.replace(context,
-                        oldRoute: ModalRoute.of(context)!,
-                        newRoute: MaterialPageRoute(
-                            builder: (context) => DisplayPerson(
-                                    person: Person(
-                                  name: _name,
-                                  address: _address,
-                                  message: _message,
-                                  dateOfDeath: selectedDate,
-                                  imagePath: filePath ?? '',
-                                ))));
+                    Navigator.replace(
+                      context,
+                      oldRoute: ModalRoute.of(context)!,
+                      newRoute: MaterialPageRoute(
+                        builder: (context) => DisplayPerson(
+                          person: Person(
+                            name: _name,
+                            address: _address,
+                            message: _message,
+                            dateOfDeath: selectedDate,
+                            imagePath: filePath ?? '',
+                          ),
+                        ),
+                      ),
+                    );
                   }
                 },
                 child: Text('Submit'),
