@@ -31,7 +31,7 @@ class Home extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Theme.of(context).primaryColor,
         title: Text(
           'hello! User'.toUpperCase(),
           style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
