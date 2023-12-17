@@ -30,7 +30,8 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           title: 'social app',
           theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            colorScheme: ColorScheme.fromSeed(
+                seedColor: Color.fromARGB(255, 255, 152, 34)),
             useMaterial3: true,
           ),
           home: const MyHomePage(),
