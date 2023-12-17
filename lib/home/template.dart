@@ -1,13 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:share/share.dart';
 
 class Template extends StatefulWidget {
-  const Template({super.key});
+  const Template({Key? key}) : super(key: key);
 
   @override
   State<Template> createState() => _TemplateState();
 }
 
 class _TemplateState extends State<Template> {
+  bool showComments = false;
+
+  late String name;
+  late String dateOfDeath;
+  late String address;
+  late String message;
+  late String imagePath;
+
+  @override
+  void initState() {
+    super.initState();
+    name = 'John Doe';
+    dateOfDeath = 'January 1, 2023';
+    address = '123 Main St, City, Country';
+    message =
+        'In loving memory, your absence weighs heavy upon our hearts. Each passing day echoes with the void you\'ve left behind.';
+    imagePath = 'assets/db1.jpg'; // Replace with your image asset path
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,81 +39,93 @@ class _TemplateState extends State<Template> {
           SizedBox(
             height: 200, // Adjust height as needed
             child: Center(
-              child: Container(
-                width: 200, // Assuming square frame
-                height: 200, // Assuming square frame
-                color: Colors.grey, // Replace with your image
+              child: Image.asset(
+                'assets/db1.jpg', // Replace with your image asset path
+                width: 200, // Set your desired width
+                height: 200, // Set your desired height
               ),
             ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ElevatedButton(
-                onPressed: () {
+              GestureDetector(
+                onTap: () {
                   // Add functionality for left button
                 },
-                child: Text('Left Button'),
+                child: SvgPicture.asset(
+                  'assets/kalash.svg', // Replace with your left arrow icon asset path
+                  width: 32, // Set your desired width
+                  height: 32, // Set your desired height
+                ),
               ),
               ElevatedButton(
                 onPressed: () {
-                  // Add functionality for right button
+                  String text = 'Name: $name\n'
+                      'Date of Death: $dateOfDeath\n'
+                      'Address: $address\n'
+                      'Message: $message';
+                  Share.shareFiles([imagePath], text: text);
                 },
-                child: Text('Right Button'),
+                child: Icon(Icons.share), // Right button as a share icon
               ),
             ],
           ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Card(
-                elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Full Name: John Doe',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 10),
-                      Text('Date of Death: January 1, 2023'),
-                      SizedBox(height: 10),
-                      Text('Address: 123 Main St, City, Country'),
-                      SizedBox(height: 10),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Message',
-                          border: OutlineInputBorder(),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Card(
+                  elevation: 4,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'User',
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        maxLines: 3,
-                        // Add functionality to handle the message
-                      ),
-                      SizedBox(height: 20),
-                      Text(
-                        'Comments',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 10),
-                      Expanded(
-                        child: ListView(
-                          children: const [
-                            // Comment list items will go here
-                            ListTile(
-                              title: Text('Comment 1'),
-                              subtitle: Text('Comment 1 details'),
-                              // Add functionality for likes and replies
-                            ),
-                            ListTile(
-                              title: Text('Comment 2'),
-                              subtitle: Text('Comment 2 details'),
-                              // Add functionality for likes and replies
-                            ),
-                          ],
+                        SizedBox(height: 10),
+                        Text('Date of Death: January 1, 2023'),
+                        SizedBox(height: 10),
+                        Text('Address: 123 Main St, City, Country'),
+                        SizedBox(height: 10),
+                        Text(
+                          'Message',
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 10),
+                        Text(
+                          'In loving memory, your absence weighs heavy upon our hearts. Each passing day echoes with the void you\'ve left behind.',
+                        ),
+                        SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              showComments = !showComments;
+                            });
+                          },
+                          child: Text(
+                            showComments ? 'Hide Comments' : 'Show Comments',
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        if (showComments)
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: 10, // Assuming at least 10 comments
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                title: Text('Comment ${index + 1}'),
+                                subtitle: Text('Comment ${index + 1} details'),
+                                // Add functionality for likes and replies
+                              );
+                            },
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
