@@ -15,12 +15,12 @@ class DeceasedPerson {
 }
 
 final List<DeceasedPerson> deceasedList = [
-  DeceasedPerson(name: 'John Doe', imageUrl: 'assets/john_doe.jpg'),
-  DeceasedPerson(name: 'Jane Smith', imageUrl: 'assets/jane_smith.jpg'),
-  DeceasedPerson(name: 'John Doe', imageUrl: 'assets/john_doe.jpg'),
-  DeceasedPerson(name: 'Jane Smith', imageUrl: 'assets/jane_smith.jpg'),
-  DeceasedPerson(name: 'John Doe', imageUrl: 'assets/john_doe.jpg'),
-  DeceasedPerson(name: 'Jane Smith', imageUrl: 'assets/jane_smith.jpg'),
+  DeceasedPerson(name: 'User', imageUrl: 'assets/db1.jpg'),
+  DeceasedPerson(name: 'User', imageUrl: 'assets/db1.jpg'),
+  DeceasedPerson(name: 'User', imageUrl: 'assets/db1.jpg'),
+  DeceasedPerson(name: 'User', imageUrl: 'assets/db1.jpg'),
+  DeceasedPerson(name: 'User', imageUrl: 'assets/db1.jpg'),
+  DeceasedPerson(name: 'User', imageUrl: 'assets/db1.jpg'),
   // Add more individuals here
 ];
 
@@ -95,12 +95,7 @@ class Home extends ConsumerWidget {
                 ),
                 Card(
                   child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Template()));
-                      },
+                      onTap: () {},
                       child: Column(
                         children: <Widget>[
                           Container(
@@ -168,21 +163,22 @@ class Home extends ConsumerWidget {
                 itemBuilder: (BuildContext context, int index) {
                   final DeceasedPerson person = deceasedList[index];
                   return GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Template()));
+                    },
                     child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
                             width: 100,
                             height: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: AssetImage(person.imageUrl),
-                              ),
-                            ),
+                            child: Image.asset(person.imageUrl),
                           ),
                           SizedBox(height: 8),
                           Text(
