@@ -1,7 +1,17 @@
 import 'dart:io';
+import 'dart:convert';
+import 'dart:async';
+import 'dart:math';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:social_content_manager/home/display.dart';
+
+import 'package:http/http.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:path/path.dart';
+import 'package:dio/dio.dart' as _dio;
+import 'package:social_content_manager/service/auth/Secure.dart';
 
 class Create extends StatefulWidget {
   const Create({Key? key, required this.title}) : super(key: key);
@@ -16,6 +26,65 @@ class _CreateState extends State<Create> {
   String? filePath; // Store the file path
 
   final _formKey = GlobalKey<FormState>();
+
+  Future<String?> uploadImageToS3(File file) async {
+    try {
+      if (file == null || !(await file.exists())) {
+        print('Selected file does not exist or is empty');
+        return null;
+      }
+
+      _dio.Dio dio = _dio.Dio();
+      String fileName = basename(file.path);
+
+      _dio.FormData formData = _dio.FormData.fromMap({
+        'file': await _dio.MultipartFile.fromFile(
+          file.path,
+          filename: fileName,
+          contentType: MediaType('application',
+              'octet-stream'), // Change the content type accordingly
+        ),
+      });
+
+      final token = await readFromSecureStorage("token");
+      if (token == null || token.isEmpty) {
+        print('Token is null or empty');
+        return null;
+      }
+
+      _dio.Response response = await dio.post(
+        'https://eksamaj.in/dashboard/api/upload/',
+        data: formData,
+        options: _dio.Options(
+          headers: {
+            'content-type': 'multipart/form-data',
+            'Access-Control-Allow-Origin': '*', // CORS header
+            'Authorization': 'Bearer $token', // Authorization header with token
+            // Add any other headers as needed
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        // Assuming the response contains the URL of the uploaded image
+        return response.data['image_url'];
+      } else {
+        print('Error uploading image');
+        return null;
+      }
+    } on _dio.DioException catch (e) {
+      if (e.response != null) {
+        print('Error uploading image: ${e.response!.statusCode}');
+        print('Error response: ${e.response!.data}');
+      } else {
+        print('Error uploading image: $e');
+      }
+      return null;
+    } catch (e) {
+      print('Error uploading image: $e');
+      return null;
+    }
+  }
 
   String _name = '';
   String _address = '';
@@ -69,9 +138,20 @@ class _CreateState extends State<Create> {
                             allowMultiple: false,
                           );
                           if (result != null && result.files.isNotEmpty) {
-                            setState(() {
-                              filePath = result.files.first.path!;
-                            });
+                            File? pickedFile = File(result.files.first.path!);
+                            if (pickedFile != null) {
+                              String? imageUrl =
+                                  await uploadImageToS3(pickedFile);
+                              if (imageUrl != null) {
+                                setState(() {
+                                  filePath = imageUrl;
+                                });
+                              } else {
+                                print('Error uploading image');
+                              }
+                            } else {
+                              print('Error picking image');
+                            }
                           } else {
                             print('No file selected');
                           }
@@ -132,13 +212,48 @@ class _CreateState extends State<Create> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   final form = _formKey.currentState;
                   if (form!.validate()) {
                     form.save();
-                    // Process the data or submit the form
-                    // For example, you can send the data to an API here
-                    // _name, _address, _message, selectedDate, filePath can be used here
+                    String mutation = '''
+                        mutation(\$full_name:String,\$address:String,\$message:String,\$dod:DateTime){
+                        createTemplate(data:{full_name:\$full_name,address:\$address,message:\$message,dod:\$dod}){
+                          data{
+                            id
+                            attributes{
+                              full_name
+                              address
+                              dod
+                            }
+                          }
+                        }
+                      }
+                    ''';
+
+                    print('dt $selectedDate.toIso8601String()');
+
+                    final QueryResult result =
+                        await GraphQLProvider.of(context).value.mutate(
+                              MutationOptions(
+                                document: gql(mutation),
+                                variables: {
+                                  'name': _name,
+                                  'address': _address,
+                                  'message': _message,
+                                  'dod': selectedDate.toIso8601String(),
+                                },
+                              ),
+                            );
+
+                    if (result.hasException) {
+                      print(
+                          'Error uploading data: ${result.exception.toString()}');
+                    } else {
+                      print('Data uploaded successfully!');
+                      // Handle successful data upload
+                    }
+
                     Navigator.replace(
                       context,
                       oldRoute: ModalRoute.of(context)!,
