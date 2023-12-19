@@ -46,6 +46,7 @@ dependencies:
   flutter_riverpod: ^2.4.9
   riverpod_annotation: ^2.3.3
   flutter_svg: ^2.0.9
+  dio: ^5.4.0
 
 dev_dependencies:
   flutter_test:
