@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:social_content_manager/home/display.dart';
+import 'package:intl/intl.dart';
 
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
@@ -38,7 +39,7 @@ class _CreateState extends State<Create> {
       String fileName = basename(file.path);
 
       _dio.FormData formData = _dio.FormData.fromMap({
-        'file': await _dio.MultipartFile.fromFile(
+        'files': await _dio.MultipartFile.fromFile(
           file.path,
           filename: fileName,
           contentType: MediaType('application',
@@ -46,14 +47,17 @@ class _CreateState extends State<Create> {
         ),
       });
 
+
+
       final token = await readFromSecureStorage("token");
+
       if (token == null || token.isEmpty) {
         print('Token is null or empty');
         return null;
       }
 
       _dio.Response response = await dio.post(
-        'https://eksamaj.in/dashboard/api/upload/',
+        'https://eksamaj.in/hphmeelan/api/upload/',
         data: formData,
         options: _dio.Options(
           headers: {
@@ -93,15 +97,30 @@ class _CreateState extends State<Create> {
   DateTime selectedDate = DateTime.now();
 
   Future<void> _selectedDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (pickedDate != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
         context: context,
-        initialDate: selectedDate,
-        firstDate: DateTime(2000),
-        lastDate: DateTime(2101));
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-      });
+        initialTime: TimeOfDay.fromDateTime(selectedDate),
+      );
+
+      if (pickedTime != null) {
+        setState(() {
+          selectedDate = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+        });
+      }
     }
   }
 
@@ -217,21 +236,22 @@ class _CreateState extends State<Create> {
                   if (form!.validate()) {
                     form.save();
                     String mutation = '''
-                        mutation(\$full_name:String,\$address:String,\$message:String,\$dod:DateTime){
-                        createTemplate(data:{full_name:\$full_name,address:\$address,message:\$message,dod:\$dod}){
+                        mutation(\$full_name:String,\$address:String,\$message:String,\$dod:DateTime,\$imageId:ID){
+                        createTemplate(data:{full_name:\$full_name,address:\$address,message:\$message,dod:\$dod,image:\$imageId}){
                           data{
                             id
                             attributes{
                               full_name
                               address
                               dod
+                              
                             }
                           }
                         }
                       }
                     ''';
 
-                    print('dt $selectedDate.toIso8601String()');
+                    print( (selectedDate).runtimeType);
 
                     final QueryResult result =
                         await GraphQLProvider.of(context).value.mutate(
@@ -241,7 +261,7 @@ class _CreateState extends State<Create> {
                                   'name': _name,
                                   'address': _address,
                                   'message': _message,
-                                  'dod': selectedDate.toIso8601String(),
+                                  'dod':   selectedDate,
                                 },
                               ),
                             );
