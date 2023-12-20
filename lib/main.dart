@@ -16,7 +16,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AuthLink authLink =
-        AuthLink(getToken: () async => await readFromSecureStorage("token"));
+        AuthLink(getToken: () async {
+          final token = await readFromSecureStorage("token");
+          return "Bearer $token";
+        });
     final ValueNotifier<GraphQLClient> client = ValueNotifier(
       GraphQLClient(
         link: authLink.concat(HttpLink('https://eksamaj.in/meelangraphql')),

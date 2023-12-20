@@ -25,6 +25,7 @@ class Create extends StatefulWidget {
 
 class _CreateState extends State<Create> {
   String? filePath; // Store the file path
+  int _imageId = 0;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -71,6 +72,10 @@ class _CreateState extends State<Create> {
 
       if (response.statusCode == 200) {
         // Assuming the response contains the URL of the uploaded image
+        // print(response.data[0]["id"]);
+        setState(() {
+          _imageId=response.data[0]["id"];
+        });
         return response.data['image_url'];
       } else {
         print('Error uploading image');
@@ -94,6 +99,7 @@ class _CreateState extends State<Create> {
   String _address = '';
   String _message = '';
 
+
   DateTime selectedDate = DateTime.now();
 
   Future<void> _selectedDate(BuildContext context) async {
@@ -105,23 +111,16 @@ class _CreateState extends State<Create> {
     );
 
     if (pickedDate != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(selectedDate),
-      );
+      setState(() {
+        selectedDate = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
 
-      if (pickedTime != null) {
-        setState(() {
-          selectedDate = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
-        });
-      }
+        );
+      });
     }
+
   }
 
   @override
@@ -236,7 +235,7 @@ class _CreateState extends State<Create> {
                   if (form!.validate()) {
                     form.save();
                     String mutation = '''
-                        mutation(\$full_name:String,\$address:String,\$message:String,\$dod:DateTime,\$imageId:ID){
+                        mutation(\$full_name:String,\$address:String,\$message:String,\$dod:Date,\$imageId:ID){
                         createTemplate(data:{full_name:\$full_name,address:\$address,message:\$message,dod:\$dod,image:\$imageId}){
                           data{
                             id
@@ -251,7 +250,7 @@ class _CreateState extends State<Create> {
                       }
                     ''';
 
-                    print( (selectedDate).runtimeType);
+                    print( new DateFormat("yyyy-MM-dd").format(selectedDate));
 
                     final QueryResult result =
                         await GraphQLProvider.of(context).value.mutate(
@@ -261,8 +260,10 @@ class _CreateState extends State<Create> {
                                   'name': _name,
                                   'address': _address,
                                   'message': _message,
-                                  'dod':   selectedDate,
+                                  'dod':   new DateFormat("yyyy-MM-dd").format(selectedDate),
+                                  'imageId':_imageId
                                 },
+
                               ),
                             );
 
