@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:social_content_manager/home/display.dart';
+import 'package:intl/intl.dart';
 
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
@@ -24,6 +25,7 @@ class Create extends StatefulWidget {
 
 class _CreateState extends State<Create> {
   String? filePath; // Store the file path
+  int _imageId = 0;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -38,7 +40,7 @@ class _CreateState extends State<Create> {
       String fileName = basename(file.path);
 
       _dio.FormData formData = _dio.FormData.fromMap({
-        'file': await _dio.MultipartFile.fromFile(
+        'files': await _dio.MultipartFile.fromFile(
           file.path,
           filename: fileName,
           contentType: MediaType('application',
@@ -46,14 +48,17 @@ class _CreateState extends State<Create> {
         ),
       });
 
+
+
       final token = await readFromSecureStorage("token");
+
       if (token == null || token.isEmpty) {
         print('Token is null or empty');
         return null;
       }
 
       _dio.Response response = await dio.post(
-        'https://eksamaj.in/dashboard/api/upload/',
+        'https://eksamaj.in/hphmeelan/api/upload/',
         data: formData,
         options: _dio.Options(
           headers: {
@@ -67,6 +72,10 @@ class _CreateState extends State<Create> {
 
       if (response.statusCode == 200) {
         // Assuming the response contains the URL of the uploaded image
+        // print(response.data[0]["id"]);
+        setState(() {
+          _imageId=response.data[0]["id"];
+        });
         return response.data['image_url'];
       } else {
         print('Error uploading image');
@@ -90,19 +99,28 @@ class _CreateState extends State<Create> {
   String _address = '';
   String _message = '';
 
+
   DateTime selectedDate = DateTime.now();
 
   Future<void> _selectedDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-        context: context,
-        initialDate: selectedDate,
-        firstDate: DateTime(2000),
-        lastDate: DateTime(2101));
-    if (picked != null && picked != selectedDate) {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (pickedDate != null) {
       setState(() {
-        selectedDate = picked;
+        selectedDate = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+
+        );
       });
     }
+
   }
 
   @override
@@ -217,21 +235,22 @@ class _CreateState extends State<Create> {
                   if (form!.validate()) {
                     form.save();
                     String mutation = '''
-                        mutation(\$full_name:String,\$address:String,\$message:String,\$dod:DateTime){
-                        createTemplate(data:{full_name:\$full_name,address:\$address,message:\$message,dod:\$dod}){
+                        mutation(\$full_name:String,\$address:String,\$message:String,\$dod:Date,\$imageId:ID){
+                        createTemplate(data:{full_name:\$full_name,address:\$address,message:\$message,dod:\$dod,image:\$imageId}){
                           data{
                             id
                             attributes{
                               full_name
                               address
                               dod
+                              
                             }
                           }
                         }
                       }
                     ''';
 
-                    print('dt $selectedDate.toIso8601String()');
+                    print( new DateFormat("yyyy-MM-dd").format(selectedDate));
 
                     final QueryResult result =
                         await GraphQLProvider.of(context).value.mutate(
@@ -241,8 +260,10 @@ class _CreateState extends State<Create> {
                                   'name': _name,
                                   'address': _address,
                                   'message': _message,
-                                  'dod': selectedDate.toIso8601String(),
+                                  'dod':   new DateFormat("yyyy-MM-dd").format(selectedDate),
+                                  'imageId':_imageId
                                 },
+
                               ),
                             );
 
