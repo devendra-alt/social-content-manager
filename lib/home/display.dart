@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:share/share.dart';
+import 'package:social_content_manager/main.dart';
 
 class Person {
   final String name;
@@ -29,6 +31,19 @@ class DisplayPerson extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Person Details'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            // Navigate back to the main page
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MyHomePage(), // Replace with your main page widget
+              ),
+            );
+          },
+        ),
+
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20.0),
@@ -74,7 +89,7 @@ class DisplayPerson extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              'Date of Death: ${person.dateOfDeath.toString()}',
+              'Date of Death: ${new DateFormat("yyyy-MM-dd").format(person.dateOfDeath)}',
               style: TextStyle(fontSize: 18),
             ),
             SizedBox(height: 10),

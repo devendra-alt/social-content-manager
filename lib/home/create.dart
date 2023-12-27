@@ -261,7 +261,7 @@ class _CreateState extends State<Create> {
                                   'address': _address,
                                   'message': _message,
                                   'dod':   new DateFormat("yyyy-MM-dd").format(selectedDate),
-                                  'imageId':_imageId
+
                                 },
 
                               ),

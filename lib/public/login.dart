@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:social_content_manager/home/home.dart';
+// import 'package:social_content_manager/home/home.dart';
 import 'package:social_content_manager/main.dart';
 import 'package:social_content_manager/service/auth/secure.dart';
 import 'package:social_content_manager/service/providers/userProvider.dart';
@@ -67,7 +67,7 @@ class _LoginState extends ConsumerState<Login> {
                   final email = resultData["login"]["user"]["email"];
                   userState.addData(email, username, id);
                   Navigator.pushReplacement(
-                      context, MaterialPageRoute(builder: (context) => Home()));
+                      context, MaterialPageRoute(builder: (context) => MyHomePage()));
                 } catch (e) {
                   CustomSnackBar.showSnackBar(context, "Error in fething data");
                 }

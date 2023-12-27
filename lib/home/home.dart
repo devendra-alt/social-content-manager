@@ -36,19 +36,7 @@ class Home extends ConsumerWidget {
           'hello! User'.toUpperCase(),
           style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
         ),
-        actions: [
-          IconButton(
-              onPressed: () => {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => UserProfilePage()))
-                  },
-              icon: Icon(
-                Icons.person,
-                color: Colors.white,
-              ))
-        ],
+
       ),
       body: SingleChildScrollView(
         child: Column(

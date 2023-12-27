@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:social_content_manager/home/home.dart';
+import 'package:social_content_manager/utils/bottomNavigation.dart';
 import 'package:social_content_manager/public/login.dart';
 import 'package:social_content_manager/service/auth/secure.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,7 +18,11 @@ class MyApp extends StatelessWidget {
     final AuthLink authLink =
         AuthLink(getToken: () async {
           final token = await readFromSecureStorage("token");
-          return "Bearer $token";
+          if(token != null){
+            return "Bearer $token";
+          }
+
+          return null ;
         });
     final ValueNotifier<GraphQLClient> client = ValueNotifier(
       GraphQLClient(
@@ -38,6 +42,7 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
           ),
           home: const MyHomePage(),
+
         ),
       ),
     );
@@ -57,7 +62,7 @@ class MyHomePage extends ConsumerWidget {
             body: Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasData && snapshot.data != null) {
-          return Home();
+          return BottomNavigation();
         } else {
           return Login(
             key: key,
