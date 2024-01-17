@@ -2,7 +2,7 @@ class User {
    static  Map<String,dynamic> host={
     'channel':'Channel2',
     'uid':10,
-    'token':'007eJxTYLB5W/A641RJt9w3LfcrLToH1l80yO6wchB5u0Hc+OlGtzIFBguTVOO0tBSDVAvjNBOLpORES0sjo6S0FONUIwtDi2RD+8plqQ2BjAyKz3mZGRkgEMTnYHDOSMzLS80xYmAAAPvvIMw='
+    'token':'007eJxTYGiL2vLruaCZwKlZBslshnYF2i5SZvcsW/1fWqr2+nCoGCswWJikGqelpRikWhinmVgkJSdaWhoZJaWlGKcaWRhaJBvyfl+e2hDIyPDhOwsTIwMEgvgcDM4ZiXl5qTlGDAwAxvMd1w=='
    };
 
    static Map<String,dynamic> audience={

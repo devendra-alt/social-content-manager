@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:social_content_manager/agora/agora2.dart';
+import 'package:social_content_manager/agora/screens/ag_lobby_screen.dart';
 import 'package:social_content_manager/agora/user.dart';
 
 class AgoraScreen extends StatefulWidget {
@@ -10,15 +10,14 @@ class AgoraScreen extends StatefulWidget {
   }
 }
 
-
-
 class _AgoraScreenState extends State<AgoraScreen> {
   final _channelNameController = TextEditingController();
 
-  void _joinLiveStream(bool isBroadcasting,String channelName,Map<String,dynamic> map) {
+  void _joinLiveStream(
+      bool isBroadcasting, String channelName, Map<String, dynamic> map) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => AgoraBroadCasting(isBroadcaster: isBroadcasting,channelName:channelName,user: map),
+        builder: (_) => AgoraLobbyScreen(),
       ),
     );
   }
@@ -37,12 +36,17 @@ class _AgoraScreenState extends State<AgoraScreen> {
             decoration: InputDecoration(
                 border: OutlineInputBorder(), labelText: 'Channel Name'),
           ),
-          ElevatedButton(onPressed: () {
-            _joinLiveStream(true,_channelNameController.text,User.host);
-          }, child: Text('Broadcast')),
-          ElevatedButton(onPressed: () {
-            _joinLiveStream(false,_channelNameController.text,User.audience);
-          }, child: Text('Join')),
+          ElevatedButton(
+              onPressed: () {
+                _joinLiveStream(true, _channelNameController.text, User.host);
+              },
+              child: Text('Broadcast')),
+          ElevatedButton(
+              onPressed: () {
+                _joinLiveStream(
+                    false, _channelNameController.text, User.audience);
+              },
+              child: Text('Join')),
         ],
       ),
     );

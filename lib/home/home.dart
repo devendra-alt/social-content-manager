@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:social_content_manager/agora/ag_screen.dart';
-import 'package:social_content_manager/agora/agora.dart';
-import 'package:social_content_manager/agora/agora2.dart';
+import 'package:social_content_manager/agora/screens/ag_create_channel_screen.dart';
 import 'package:social_content_manager/home/create.dart';
 import 'package:social_content_manager/home/template.dart';
 import 'package:social_content_manager/user/profile.dart';
