@@ -42,11 +42,14 @@ dependencies:
   share: ^2.0.4
   agora_rtc_engine: ^6.2.6
   flutter_secure_storage: ^9.0.0
-  permission_handler: ^9.2.0
+  permission_handler: ^11.0.0
   flutter_riverpod: ^2.4.9
   riverpod_annotation: ^2.3.3
   flutter_svg: ^2.0.9
   dio: ^5.4.0
+  agora_uikit: ^1.3.7
+  rive: 0.11.11
+
 
 
 
@@ -81,6 +84,8 @@ flutter:
     - assets/db1.jpg
     - assets/temple.avif
     - assets/kalash.svg
+    - assets/live.png
+    - assets/eye.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

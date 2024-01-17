@@ -193,8 +193,10 @@ class _LoginState extends ConsumerState<Login> {
                                         _isLoginTab
                                             ? _loginPressed(
                                                 context, runMutation)
+            
                                             : _signUpPressed(
                                                 context, runMutation);
+                                         
                                       },
                                       child: Text(
                                           _isLoginTab ? 'Login' : 'Sign Up'),
@@ -218,15 +220,17 @@ class _LoginState extends ConsumerState<Login> {
   }
 
   void _loginPressed(context, RunMutation runMutation) {
+
     if (_formKey.currentState!.validate()) {
       if (_authValue != null && _passwordValue != null) {
         try {
           runMutation({'email': _authValue, 'password': _passwordValue});
         } catch (e) {
-          CustomSnackBar.showSnackBar(context, 'Login Error!!');
+          CustomSnackBar.showSnackBar(context, e.toString());
         }
       }
     }
+     print("error occured::${StackTrace.current}");
   }
 
   void _signUpPressed(context, runMutation) {

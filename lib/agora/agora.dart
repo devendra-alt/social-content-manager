@@ -144,9 +144,11 @@ class _AgoraClientState extends State<AgoraClient> {
         },
         onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
           showMessage("Remote user uid:$remoteUid joined the channel");
-          setState(() {
-            _remoteUid = remoteUid;
-          });
+          setState(
+            () {
+              _remoteUid = remoteUid;
+            },
+          );
         },
         onUserOffline: (RtcConnection connection, int remoteUid,
             UserOfflineReasonType reason) {
@@ -221,3 +223,5 @@ class _AgoraClientState extends State<AgoraClient> {
     ));
   }
 }
+
+
