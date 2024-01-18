@@ -4,11 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:social_content_manager/agora/ag_credentials.dart';
 import 'package:social_content_manager/agora/channel_model.dart';
+import 'package:social_content_manager/agora/repository/fetch_token.dart';
 import 'package:social_content_manager/agora/user.dart';
 
 final agoraControllerProvider = StateNotifierProvider.family(
   (ref, bool isBroadcaster) {
-    return AgoraController(isBroadcaster: isBroadcaster);
+    return AgoraController(
+        isBroadcaster: isBroadcaster,
+        rtcTokenService: ref.read(rtcTokenGeneratorRepository));
   },
 );
 
@@ -16,8 +19,11 @@ class AgoraController extends StateNotifier<ChannelModel> {
   RtcEngine? _agoraEngine;
   final String _appId = AgoraCredentials.appId;
   final bool _isBroadcaster;
-  AgoraController({required bool isBroadcaster})
+  final RtcTokenService _rtcTokenService;
+  AgoraController(
+      {required bool isBroadcaster, required RtcTokenService rtcTokenService})
       : _isBroadcaster = isBroadcaster,
+        _rtcTokenService = rtcTokenService,
         super(
           ChannelModel(
             createdUserId: User.host['uid'],
@@ -74,19 +80,35 @@ class AgoraController extends StateNotifier<ChannelModel> {
             ConnectionChangedReasonType.connectionChangedLeaveChannel) {}
       },
       onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
-        state=state.copyWith(isJoined:true);
+        state = state.copyWith(isJoined: true);
       },
+    );
+  }
+
+  Future<String> generateToken(
+      {required uid,
+      required String channelName,
+      required bool isBroadcaster}) async {
+    return await _rtcTokenService.fetchTokenSerice(
+      uid: uid,
+      channelName: channelName,
+      isBroadcaster: isBroadcaster,
     );
   }
 
   Future<void> joinChannel() async {
     await _agoraEngine!.startPreview();
+    String token = await generateToken(
+      uid: User.host['uid'],
+      channelName: User.host['channel'],
+      isBroadcaster: _isBroadcaster,
+    );
 
-     await _agoraEngine!.joinChannel(
-         token:User.host['token'],
-         channelId: User.host['channel'],
-         uid: User.host['uid'],
-         options: getChannelMediaOptions());
+    await _agoraEngine!.joinChannel(
+        token:token,
+        channelId: User.host['channel'],
+        uid: User.host['uid'],
+        options: getChannelMediaOptions());
   }
 
   AgoraVideoView remoteVideoView(int remoteUid) {
