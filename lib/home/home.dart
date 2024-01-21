@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_content_manager/agora/screens/ag_create_channel_screen.dart';
+import 'package:social_content_manager/agora/screens/live_streaming_channels_screen.dart';
 import 'package:social_content_manager/home/create.dart';
 import 'package:social_content_manager/home/template.dart';
 import 'package:social_content_manager/user/profile.dart';
@@ -207,7 +208,7 @@ class Home extends ConsumerWidget {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>AgoraScreen()));
+                              builder: (context) => AgoraScreen()));
                     },
                     child: Row(
                       children: const [Text("Live"), Icon(Icons.arrow_right)],
@@ -228,6 +229,16 @@ class Home extends ConsumerWidget {
               ),
             ),
             SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => LiveStreamChannelScreen(),
+                  ),
+                );
+              },
+              child: Text('Ongoing streams'),
+            ),
           ],
         ),
       ),

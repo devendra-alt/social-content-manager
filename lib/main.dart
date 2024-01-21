@@ -15,11 +15,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AuthLink authLink =
-        AuthLink(getToken: () async {
-          final token = await readFromSecureStorage("token");
-          return "Bearer $token";
-        });
+    final AuthLink authLink = AuthLink(getToken: () async {
+      final token = await readFromSecureStorage("token");
+      print("token::$token");
+      return "Bearer $token";
+    });
     final ValueNotifier<GraphQLClient> client = ValueNotifier(
       GraphQLClient(
         link: authLink.concat(HttpLink('https://eksamaj.in/meelangraphql')),
@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
                 seedColor: Color.fromARGB(255, 255, 152, 34)),
             useMaterial3: true,
           ),
-          home:Home(),
+          home: Home(),
         ),
       ),
     );

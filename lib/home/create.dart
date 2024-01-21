@@ -52,6 +52,7 @@ class _CreateState extends State<Create> {
 
       final token = await readFromSecureStorage("token");
 
+
       if (token == null || token.isEmpty) {
         print('Token is null or empty');
         return null;

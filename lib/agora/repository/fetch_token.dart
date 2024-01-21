@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,26 +9,32 @@ class RtcTokenService {
     required String channelName,
     required bool isBroadcaster,
   }) async {
-    try{
-    final dio = Dio();
+    try {
+      final dio = Dio();
 
-    String role = isBroadcaster ? 'Broadcaster' : 'Audience';
+      String role = isBroadcaster ? 'Broadcaster' : 'Audience';
 
-    String url = 'https://10.0.2.2:7894/rtc/$channelName/'
-        '$role/uid/${uid.toString()}';
+      String url =
+          'https://tkn-genv5.netlify.app/.netlify/functions/api/rtc/$channelName/'
+          '$role/uid/${uid.toString()}';
 
-    final response = await dio.get(url);
+      final response = await dio.get(
+        url,
+        options: Options(responseType: ResponseType.json),
+      );
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> json = jsonDecode(response.data);
-      String newToken = json['rtcToken'];
-      return newToken;
-    } else {
-      throw Exception('Failed to Fetch');
+      print("response::${response.data.toString()}");
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = response.data;
+        String newToken = json['rtcToken'] as String;
+        return newToken;
+      } else {
+        throw Exception('Failed to Fetch');
+      }
+    } catch (e) {
+      print("error::$e");
     }
-  }catch(e){
-    print("error::$e");
-  }
-  return '';
+    return '';
   }
 }
