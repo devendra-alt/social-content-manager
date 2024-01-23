@@ -15,13 +15,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AuthLink authLink = AuthLink(getToken: () async {
-      final token = await readFromSecureStorage("token");
-      print("token::$token");
-      return "Bearer $token";
-    });
+    final AuthLink authLink = AuthLink(
+      getToken: () async {
+        final token = await readFromSecureStorage("token");
+        if (token != null) {
+          return 'bearer $token';
+        }
+        return token;
+      },
+    );
     final ValueNotifier<GraphQLClient> client = ValueNotifier(
       GraphQLClient(
+     
         link: authLink.concat(HttpLink('https://eksamaj.in/meelangraphql')),
         cache: GraphQLCache(store: HiveStore()),
       ),
@@ -37,7 +42,7 @@ class MyApp extends StatelessWidget {
                 seedColor: Color.fromARGB(255, 255, 152, 34)),
             useMaterial3: true,
           ),
-          home: Home(),
+          home: MyHomePage(),
         ),
       ),
     );
@@ -57,6 +62,7 @@ class MyHomePage extends ConsumerWidget {
             body: Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasData && snapshot.data != null) {
+          print("data${snapshot.data}");
           return Home();
         } else {
           return Login(

@@ -54,6 +54,7 @@ class AgoraController extends StateNotifier<ChannelModel> {
     } else {
       await _agoraEngine!
           .setClientRole(role: ClientRoleType.clientRoleAudience);
+
     }
 
     _agoraEngine!.registerEventHandler(getEventHandler());
