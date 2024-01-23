@@ -1,5 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:social_content_manager/agora/channel_model.dart';
 import 'package:social_content_manager/agora/channel_response_model.dart';
 
 class ChannelControllerModel {
@@ -22,7 +20,7 @@ class ChannelControllerModel {
   ChannelControllerModel copyWith(
       {DateTime? dateData, List<ChannelResponseModel>? channelData}) {
     return ChannelControllerModel(
-      channels:channelData ?? channels,
+      channels: channelData ?? channels,
       timeStamp: dateData ?? timeStamp,
     );
   }

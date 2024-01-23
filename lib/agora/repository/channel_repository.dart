@@ -1,15 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:social_content_manager/agora/channel_response_model.dart';
 import 'package:social_content_manager/service/auth/Secure.dart';
 
 final channelRepositiryProvider = Provider((ref) {
-  return ChannelRepositiry(ref: ref);
-});
-
-final graphqlClientProvider = Provider((ref) {
-  return useGraphQLClient();
+  return ChannelRepositiry();
 });
 
 final AuthLink authLink = AuthLink(
@@ -27,8 +22,6 @@ final GraphQLClient client = GraphQLClient(
 );
 
 class ChannelRepositiry {
-  final Ref _ref;
-  ChannelRepositiry({required Ref ref}) : _ref = ref;
   static const String _fetchChannelQuery = """
 query Query {
   channels {
@@ -68,10 +61,9 @@ query TimeStampQuery {
           document: gql(_fetchChannelQuery),
         ),
       );
-      final length= result.data!['channels']['data'].length;
-     
+      final length = result.data!['channels']['data'].length;
+
       for (int i = 0; i < length; i++) {
-        print("Length::${result.data!.length}");
         Map<String, dynamic> data =
             result.data!['channels']['data'][i]['attributes'];
         data.remove('__typename');

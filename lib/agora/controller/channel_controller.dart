@@ -42,7 +42,6 @@ class ChannelController extends StateNotifier<ChannelControllerModel> {
 
     if (!isSameAsRemoteTimeStamp(timeStamp)) {
       channels = await _channelRepository.fetchOngoingChannels();
-      print("heheaeae ${channels.length}");
       state = state.copyWith(channelData: channels, dateData: timeStamp);
     }
     return state.listOfChannels;
@@ -50,8 +49,6 @@ class ChannelController extends StateNotifier<ChannelControllerModel> {
 
   bool isSameAsRemoteTimeStamp(DateTime remoteTimeStamp) {
     DateTime localTimeStamp = state.getTimeStamp;
-    print('local time :: $localTimeStamp');
-    print('remote TIME:: $remoteTimeStamp');
     if (localTimeStamp.isAtSameMomentAs(remoteTimeStamp)) {
       return true;
     }
