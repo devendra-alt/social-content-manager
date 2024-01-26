@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:social_content_manager/home/home.dart';
 import 'package:social_content_manager/main.dart';
+import 'package:social_content_manager/service/auth/controller/auth_controller.dart';
 import 'package:social_content_manager/service/auth/secure.dart';
-import 'package:social_content_manager/service/providers/userProvider.dart';
+
 import 'package:social_content_manager/utils/snackBar.dart';
 
 class Login extends ConsumerStatefulWidget {
@@ -28,7 +29,7 @@ class _LoginState extends ConsumerState<Login> {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
-        final userState = ref.read(userProvider.notifier);
+        final userState = ref.read(authControllerProvider.notifier);
         return Mutation(
           options: MutationOptions(
               document: _isLoginTab ? gql("""
@@ -62,10 +63,12 @@ class _LoginState extends ConsumerState<Login> {
                   final token = resultData["login"]["jwt"];
                   writeToSecureStorage("token", token);
                   final id = int.parse(resultData["login"]["user"]["id"]);
-
+                  writeToSecureStorage("id", id.toString());  
                   final username = resultData["login"]["user"]["username"];
+                  writeToSecureStorage("username",username);
                   final email = resultData["login"]["user"]["email"];
-                  userState.addData(email, username, id);
+                  writeToSecureStorage("email", email);
+                  userState.loadUser(username: username, email: email, uid: id);
                   Navigator.pushReplacement(
                       context, MaterialPageRoute(builder: (context) => Home()));
                 } catch (e) {
@@ -89,7 +92,7 @@ class _LoginState extends ConsumerState<Login> {
                   child: Center(
                     child: Container(
                       width: 356,
-                      height: _isLoginTab ? 400 : 500,
+                      height:700,
                       padding: EdgeInsets.all(20),
                       child: Card(
                         color: Theme.of(context).canvasColor.withOpacity(0.9),
@@ -193,10 +196,8 @@ class _LoginState extends ConsumerState<Login> {
                                         _isLoginTab
                                             ? _loginPressed(
                                                 context, runMutation)
-            
                                             : _signUpPressed(
                                                 context, runMutation);
-                                         
                                       },
                                       child: Text(
                                           _isLoginTab ? 'Login' : 'Sign Up'),
@@ -220,7 +221,6 @@ class _LoginState extends ConsumerState<Login> {
   }
 
   void _loginPressed(context, RunMutation runMutation) {
-
     if (_formKey.currentState!.validate()) {
       if (_authValue != null && _passwordValue != null) {
         try {
@@ -230,7 +230,7 @@ class _LoginState extends ConsumerState<Login> {
         }
       }
     }
-     print("error occured::${StackTrace.current}");
+    print("error occured::${StackTrace.current}");
   }
 
   void _signUpPressed(context, runMutation) {

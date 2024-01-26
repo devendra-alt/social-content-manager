@@ -4,15 +4,22 @@ class User {
   String username;
   String email;
   int id;
-  User({required this.username, required this.email, required this.id});
-}
+  User({
+    required this.username,
+    required this.email,
+    required this.id,
+  });
 
-class UserData extends StateNotifier<User> {
-  UserData()
-      : super(User(username: "John Doe", email: "JohnDoe@123.com", id: 1));
-  void addData(String email, String username, int id) {
-    state.email = email;
-    state.username = username;
-    state.id = id;
+  User.fromJson(Map<String, dynamic> map)
+      : email = map['email'],
+        id = map['id'],
+        username = map['username'];
+
+  User copyWith({String? username, String? email, int? id}) {
+    return User(
+      username: username ?? this.username,
+      email: email ?? this.email,
+      id: id ?? this.id,
+    );
   }
 }

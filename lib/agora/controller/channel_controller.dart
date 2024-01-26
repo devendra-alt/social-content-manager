@@ -47,6 +47,7 @@ class ChannelController extends StateNotifier<ChannelControllerModel> {
     return state.listOfChannels;
   }
 
+
   bool isSameAsRemoteTimeStamp(DateTime remoteTimeStamp) {
     DateTime localTimeStamp = state.getTimeStamp;
     if (localTimeStamp.isAtSameMomentAs(remoteTimeStamp)) {

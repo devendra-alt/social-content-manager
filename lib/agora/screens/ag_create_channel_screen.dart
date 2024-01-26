@@ -14,10 +14,10 @@ class _AgoraScreenState extends State<AgoraScreen> {
   final _channelNameController = TextEditingController();
 
   void _joinLiveStream(
-      bool isBroadcasting, String channelName, Map<String, dynamic> map) {
+      bool isBroadcasting, String channelName) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => AgoraLobbyScreen(),
+        builder: (_) => AgoraLobbyScreen(isBroadcaster: isBroadcasting,channelName: channelName),
       ),
     );
   }
@@ -38,13 +38,13 @@ class _AgoraScreenState extends State<AgoraScreen> {
           ),
           ElevatedButton(
               onPressed: () {
-                _joinLiveStream(true, _channelNameController.text, User.host);
+                _joinLiveStream(true, _channelNameController.text);
               },
               child: Text('Broadcast')),
           ElevatedButton(
               onPressed: () {
                 _joinLiveStream(
-                    false, _channelNameController.text, User.audience);
+                    false, _channelNameController.text);
               },
               child: Text('Join')),
         ],

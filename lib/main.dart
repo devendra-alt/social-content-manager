@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:social_content_manager/home/home.dart';
 import 'package:social_content_manager/public/login.dart';
+import 'package:social_content_manager/service/auth/controller/auth_controller.dart';
 import 'package:social_content_manager/service/auth/secure.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -54,6 +55,7 @@ class MyHomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userState= ref.read(authControllerProvider.notifier);
     return FutureBuilder(
       future: readFromSecureStorage("token"),
       builder: (context, snapshot) {
@@ -62,7 +64,7 @@ class MyHomePage extends ConsumerWidget {
             body: Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasData && snapshot.data != null) {
-          print("data${snapshot.data}");
+          userState.loadUserFromLocalStorage();
           return Home();
         } else {
           return Login(

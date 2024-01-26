@@ -16,6 +16,11 @@ class ChannelModel {
     isJoined = val;
   }
 
+  List<int> addUserToList(int uid){
+    remoteUids.add(uid);
+    return remoteUids;
+  }
+
   ChannelModel copyWith({
     int? createdUserId,
     String? channelName,

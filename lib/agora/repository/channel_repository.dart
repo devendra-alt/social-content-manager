@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:social_content_manager/agora/channel_response_model.dart';
 import 'package:social_content_manager/service/auth/Secure.dart';
 
@@ -27,7 +28,6 @@ query Query {
   channels {
     data {
       attributes {
-        channel_id
         channel_name
         user_id
       }
@@ -93,5 +93,48 @@ query TimeStampQuery {
       print('exception occured $e');
     }
     return DateTime.now();
+  }
+
+  Future<bool> createChannel(String channelName, int userId) async {
+    const String createChannel = """
+  mutation CreateChannel(\$data: ChannelInput!, \$updateChannelTimestampData2: ChannelTimestampInput!) {
+  createChannel(data: \$data) {
+    data {
+      attributes {
+        channel_name
+        user_id
+      }
+    }
+  }
+  updateChannelTimestamp(id:1, data: \$updateChannelTimestampData2) {
+    data {
+      attributes {
+        timestamp
+      }
+    }
+  }
+}
+""";
+
+    try {
+      await client.mutate(
+        MutationOptions(
+          document: gql(createChannel),
+          variables: <String, dynamic>{
+            "data": {
+              "channel_name": channelName,
+              "user_id": userId,
+            },
+            "updateChannelTimestampData2": {
+              "timestamp": DateTime.now().toString()
+            }
+          },
+        ),
+      );
+      return true;
+    } catch (e) {
+      print('error occured :: $e');
+      return false;
+    }
   }
 }
