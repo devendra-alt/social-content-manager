@@ -1,13 +1,16 @@
 class ChannelResponseModel {
+  final int channelId;
   final int userId;
   final String channelName;
 
   ChannelResponseModel({
+    required this.channelId,
     required this.channelName,
     required this.userId,
   });
 
   ChannelResponseModel.fromJson(Map<String, dynamic> map)
-      : userId = map['user_id'],
+      : channelId = map['id'],
+        userId = map['user_id'],
         channelName = map['channel_name'];
 }

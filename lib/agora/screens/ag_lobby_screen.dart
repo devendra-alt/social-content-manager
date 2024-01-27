@@ -1,5 +1,6 @@
 import 'package:agora_uikit/agora_uikit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_content_manager/agora/ag_credentials.dart';
 import 'package:social_content_manager/agora/controller/agora_sdk_controller.dart';
@@ -28,23 +29,41 @@ class _AgoraLobbyScreen extends ConsumerState<AgoraLobbyScreen> {
     super.initState();
 
     sdk = ref.read(
-      agoraControllerProvider(Tuple2(widget.isBroadcaster, widget.channelName))
-          .notifier,
+      agoraControllerProvider(
+        Tuple3(
+          widget.isBroadcaster,
+          widget.channelName,
+          context,
+        ),
+      ).notifier,
     );
     initAgoraEngine();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    sdk.leave();
   }
 
   Future<void> initAgoraEngine() async {
     await sdk.initRtcEngine();
     await sdk.configChannel();
     await sdk.joinChannel();
-    await sdk.createChannel();
+    if (widget.isBroadcaster) await sdk.createChannel();
   }
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(agoraControllerProvider(
-        Tuple2(widget.isBroadcaster, widget.channelName)));
+    ref.watch(
+      agoraControllerProvider(
+        Tuple3(
+          widget.isBroadcaster,
+          widget.channelName,
+          context,
+        ),
+      ),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -66,7 +85,7 @@ class _AgoraLobbyScreen extends ConsumerState<AgoraLobbyScreen> {
                         BuiltInButtons.callEnd,
                       ],
                 onDisconnect: () async {
-                  sdk.leave(context);
+                  sdk.leave();
                 },
                 client: AgoraClient(
                   agoraConnectionData: AgoraConnectionData(

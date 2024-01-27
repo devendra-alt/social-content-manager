@@ -27,7 +27,6 @@ class MyApp extends StatelessWidget {
     );
     final ValueNotifier<GraphQLClient> client = ValueNotifier(
       GraphQLClient(
-     
         link: authLink.concat(HttpLink('https://eksamaj.in/meelangraphql')),
         cache: GraphQLCache(store: HiveStore()),
       ),
@@ -50,12 +49,41 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends ConsumerWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class MyHomePage extends ConsumerStatefulWidget {
+  const MyHomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final userState= ref.read(authControllerProvider.notifier);
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _MyHomePageState();
+  }
+}
+
+class _MyHomePageState extends ConsumerState<MyHomePage>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(_MyHomePageState());
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      clearAllResources();
+    }
+    if (state == AppLifecycleState.detached) {
+      clearAllResources();
+    }
+  }
+
+  void clearAllResources() {
+    print('----------------------On App Closed called----------------');
+  }
+
+  @override
+  Widget build(BuildContext contextf) {
+    final userState = ref.read(authControllerProvider.notifier);
     return FutureBuilder(
       future: readFromSecureStorage("token"),
       builder: (context, snapshot) {
@@ -68,7 +96,7 @@ class MyHomePage extends ConsumerWidget {
           return Home();
         } else {
           return Login(
-            key: key,
+            key: widget.key,
           );
         }
       },

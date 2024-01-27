@@ -20,8 +20,10 @@ final fetchChannelFutureProvider = FutureProvider.family(
   },
 );
 
+
 class ChannelController extends StateNotifier<ChannelControllerModel> {
   final ChannelRepositiry _channelRepository;
+
 
   ChannelController({required ChannelRepositiry channelRepositiry})
       : _channelRepository = channelRepositiry,
@@ -36,6 +38,8 @@ class ChannelController extends StateNotifier<ChannelControllerModel> {
     return state.getTimeStamp;
   }
 
+
+
   Future<List<ChannelResponseModel>> getChannelList() async {
     List<ChannelResponseModel> channels = [];
     DateTime timeStamp = await _channelRepository.fetchChannelTimeStamp();
@@ -46,6 +50,7 @@ class ChannelController extends StateNotifier<ChannelControllerModel> {
     }
     return state.listOfChannels;
   }
+
 
 
   bool isSameAsRemoteTimeStamp(DateTime remoteTimeStamp) {

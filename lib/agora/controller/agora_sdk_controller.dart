@@ -4,15 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_content_manager/agora/ag_credentials.dart';
 import 'package:social_content_manager/agora/channel_model.dart';
+import 'package:social_content_manager/agora/exception/agora_exception.dart';
 import 'package:social_content_manager/agora/repository/channel_repository.dart';
 import 'package:social_content_manager/agora/repository/fetch_token.dart';
 import 'package:social_content_manager/service/auth/controller/auth_controller.dart';
 import 'package:tuple/tuple.dart';
 
 final agoraControllerProvider = StateNotifierProvider.family<AgoraController,
-    ChannelModel, Tuple2<bool, String>>(
-  (ref, Tuple2 tuple) {
+    ChannelModel, Tuple3<bool, String, BuildContext>>(
+  (ref, Tuple3 tuple) {
     return AgoraController(
+        buildContext: tuple.item3,
         channelRepositiry: ref.read(channelRepositiryProvider),
         channelName: tuple.item2,
         authController: ref.read(authControllerProvider.notifier),
@@ -22,7 +24,9 @@ final agoraControllerProvider = StateNotifierProvider.family<AgoraController,
 );
 
 class AgoraController extends StateNotifier<ChannelModel> {
+  final BuildContext _buildContext;
   final AuthController _authController;
+  late int _channelId;
   RtcEngine? _agoraEngine;
   final String _appId = AgoraCredentials.appId;
   final bool _isBroadcaster;
@@ -31,12 +35,14 @@ class AgoraController extends StateNotifier<ChannelModel> {
   final ChannelRepositiry _channelRepositiry;
 
   AgoraController({
+    required BuildContext buildContext,
     required ChannelRepositiry channelRepositiry,
     required String channelName,
     required bool isBroadcaster,
     required RtcTokenService rtcTokenService,
     required AuthController authController,
-  })  : _channelRepositiry = channelRepositiry,
+  })  : _buildContext = buildContext,
+        _channelRepositiry = channelRepositiry,
         _channelName = channelName,
         _authController = authController,
         _isBroadcaster = isBroadcaster,
@@ -95,9 +101,6 @@ class AgoraController extends StateNotifier<ChannelModel> {
 
   RtcEngineEventHandler getEventHandler() {
     return RtcEngineEventHandler(
-      onUserOffline: (connection, remoteUid, reason) {
-        print('Called User Offline');
-      },
       onConnectionStateChanged: (RtcConnection connection,
           ConnectionStateType state, ConnectionChangedReasonType reason) {
         if (reason ==
@@ -109,14 +112,14 @@ class AgoraController extends StateNotifier<ChannelModel> {
       onUserJoined: (connection, remoteUid, elapsed) {
         state = state.copyWith(remoteUids: state.addUserToList(remoteUid));
       },
+      onUserOffline: (connection, remoteUid, reason) {
+        leave();
+      },
     );
   }
 
-  Future<void> createChannel() async{
-   bool result = await  _channelRepositiry.createChannel(_channelName, userId);
-   if(!result){
-    
-   }
+  Future<void> createChannel() async {
+    _channelId = await _channelRepositiry.createChannel(_channelName, userId);
   }
 
   Future<String> generateToken(
@@ -167,7 +170,7 @@ class AgoraController extends StateNotifier<ChannelModel> {
     );
   }
 
-  Future<void> leave(BuildContext context) async {
+  Future<void> leave() async {
     try {
       state.remoteUids.clear();
 
@@ -175,9 +178,12 @@ class AgoraController extends StateNotifier<ChannelModel> {
         await _agoraEngine!.leaveChannel();
       }
       await destroyAgoraEngine();
-      Navigator.of(context).pop();
+      if (_isBroadcaster) {
+        await _channelRepositiry.deleteChannelAndUpdateTimestamp(_channelId);
+      }
+      Navigator.of(_buildContext).pop();
     } catch (e) {
-      print("Error occured::" + e.toString());
+      //throw AgoraException(message: 'Some error occured while leaving channel');
     }
   }
 

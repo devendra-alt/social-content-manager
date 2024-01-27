@@ -18,6 +18,9 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
 
   void logout() async {
     deleteFromSecureStorage("token");
+    deleteFromSecureStorage('id');
+    deleteFromSecureStorage('username');
+    deleteFromSecureStorage('email');
     Navigator.pushAndRemoveUntil(context,
         MaterialPageRoute(builder: (context) => Login()), (route) => false);
   }
