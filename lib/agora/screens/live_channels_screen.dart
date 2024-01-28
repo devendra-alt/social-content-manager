@@ -1,50 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:social_content_manager/agora/controller/channel_controller.dart';
-import 'package:social_content_manager/agora/screens/ag_lobby_screen.dart';
+import 'package:social_content_manager/agora/widgets/live_channels_list_item.dart';
 
 class LiveChannelsScreen extends ConsumerWidget {
   const LiveChannelsScreen({super.key});
 
- 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final channelsProvider = ref.watch(fetchChannelFutureProvider(context));
-
-    
+    RefreshController _refreshController = RefreshController(
+      initialRefresh: false,
+    );
     return Scaffold(
       appBar: AppBar(
         title: Text('Live Channels'),
       ),
       body: channelsProvider.when(
         data: (data) {
-          return ListView.builder(
+          return SmartRefresher(
+           enablePullUp:false,
+            enablePullDown:true,
+            enableTwoLevel:false,
+            controller: _refreshController,
+            child: ListView.builder(
               itemBuilder: (context, pos) {
-                return Card(
-                  
-                  margin:EdgeInsets.all(10),
-                  elevation:2,
-                  child: ListTile(
-                  tileColor:Colors.white ,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => AgoraLobbyScreen(
-                              isBroadcaster: false,
-                              channelName: data[pos].channelName),
-                        ),
-                      );
-                    },
-                    splashColor:Colors.black.withOpacity(0.2),
-                    title: Text(data[pos].channelName),
-                    style: ListTileStyle.list,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
+                return LiveChannelListItem(
+                  channelName: data[pos].channelName,
+                  userId: data[pos].userId,
                 );
               },
-              itemCount: data.length);
+              itemCount: data.length,
+            ),
+          );
         },
         error: (error, stack) {
           return Text('error');

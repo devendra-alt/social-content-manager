@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:social_content_manager/home/home.dart';
-import 'package:social_content_manager/main.dart';
 import 'package:social_content_manager/service/auth/controller/auth_controller.dart';
 import 'package:social_content_manager/service/auth/secure.dart';
 

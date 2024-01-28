@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_content_manager/agora/ag_credentials.dart';
 import 'package:social_content_manager/agora/channel_model.dart';
-import 'package:social_content_manager/agora/exception/agora_exception.dart';
 import 'package:social_content_manager/agora/repository/channel_repository.dart';
 import 'package:social_content_manager/agora/repository/fetch_token.dart';
 import 'package:social_content_manager/service/auth/controller/auth_controller.dart';

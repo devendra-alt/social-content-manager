@@ -1,6 +1,5 @@
 import 'package:agora_uikit/agora_uikit.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_content_manager/agora/ag_credentials.dart';
 import 'package:social_content_manager/agora/controller/agora_sdk_controller.dart';

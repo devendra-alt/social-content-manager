@@ -127,6 +127,8 @@ updateChannelTimestamp(id:1,data:\$updatetimestamp){
     try {
       QueryResult result = await client.query(
         QueryOptions(
+
+          cacheRereadPolicy: CacheRereadPolicy.ignoreAll,
           fetchPolicy: FetchPolicy.networkOnly,
           document: gql(_fetchChannelsTimeStampQuery),
         ),

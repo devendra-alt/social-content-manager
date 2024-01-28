@@ -27,8 +27,11 @@ class MyApp extends StatelessWidget {
     );
     final ValueNotifier<GraphQLClient> client = ValueNotifier(
       GraphQLClient(
+
         link: authLink.concat(HttpLink('https://eksamaj.in/meelangraphql')),
-        cache: GraphQLCache(store: HiveStore()),
+        cache: GraphQLCache(
+          
+          store: HiveStore()),
       ),
     );
 

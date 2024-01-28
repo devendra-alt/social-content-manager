@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:social_content_manager/agora/screens/ag_lobby_screen.dart';
-import 'package:social_content_manager/agora/user.dart';
+
 
 class AgoraScreen extends StatefulWidget {
   @override
