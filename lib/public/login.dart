@@ -59,19 +59,31 @@ class _LoginState extends ConsumerState<Login> {
               },
               onCompleted: (dynamic resultData) {
                 try {
-                  final token = resultData["login"]["jwt"];
+                  String type = 'login';
+                  if (!_isLoginTab) {
+                    type = 'register';
+                  }
+                  final token = resultData[type]["jwt"];
                   writeToSecureStorage("token", token);
-                  final id = int.parse(resultData["login"]["user"]["id"]);
-                  writeToSecureStorage("id", id.toString());  
-                  final username = resultData["login"]["user"]["username"];
-                  writeToSecureStorage("username",username);
-                  final email = resultData["login"]["user"]["email"];
+                  final id = int.parse(resultData[type]["user"]["id"]);
+                  writeToSecureStorage("id", id.toString());
+                  final username = resultData[type]["user"]["username"];
+                  writeToSecureStorage("username", username);
+                  final email = resultData[type]["user"]["email"];
                   writeToSecureStorage("email", email);
                   userState.loadUser(username: username, email: email, uid: id);
+                  if (!_isLoginTab) {
+                    userState.registerAgoraUser(
+                        username, _passwordValue as String);
+                  }
                   Navigator.pushReplacement(
-                      context, MaterialPageRoute(builder: (context) => Home()));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Home(),
+                    ),
+                  );
                 } catch (e) {
-                  CustomSnackBar.showSnackBar(context, "Error in fething data");
+                  CustomSnackBar.showSnackBar(context, e.toString());
                 }
               }),
           builder: (
@@ -91,7 +103,7 @@ class _LoginState extends ConsumerState<Login> {
                   child: Center(
                     child: Container(
                       width: 356,
-                      height:700,
+                      height: 700,
                       padding: EdgeInsets.all(20),
                       child: Card(
                         color: Theme.of(context).canvasColor.withOpacity(0.9),
