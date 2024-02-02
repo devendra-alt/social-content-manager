@@ -12,7 +12,7 @@ class LiveChannelsScreen extends ConsumerWidget {
     final channelsProvider = ref.watch(fetchChannelFutureProvider(context));
     RefreshController _refreshController = RefreshController(
       initialRefresh: false,
-    );
+    ); 
     return Scaffold(
       appBar: AppBar(
         title: Text('Live Channels'),
@@ -29,6 +29,7 @@ class LiveChannelsScreen extends ConsumerWidget {
                 return LiveChannelListItem(
                   channelName: data[pos].channelName,
                   userId: data[pos].userId,
+                  groupId:data[pos].chatGroupId,
                 );
               },
               itemCount: data.length,

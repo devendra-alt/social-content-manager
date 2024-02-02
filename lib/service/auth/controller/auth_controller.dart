@@ -1,16 +1,22 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:social_content_manager/agora/repository/agora_user_repository.dart';
 import 'package:social_content_manager/service/auth/Secure.dart';
 import 'package:social_content_manager/service/auth/user.dart';
 
 final authControllerProvider = StateNotifierProvider<AuthController, User>(
   (ref) {
-    return AuthController();
+    return AuthController(
+      agoraUserRepository: ref.read(agoraUserRepositoryProvider),
+    );
   },
 );
 
 class AuthController extends StateNotifier<User> {
-  AuthController()
-      : super(
+  final AgoraUserRepository _agoraUserRepository;
+  AuthController({
+    required AgoraUserRepository agoraUserRepository,
+  })  : _agoraUserRepository = agoraUserRepository,
+        super(
           User(username: '', email: '', id: 0),
         );
 
@@ -33,6 +39,10 @@ class AuthController extends StateNotifier<User> {
 
   String get email {
     return state.email;
+  }
+
+  Future<void> registerAgoraUser(String username, String password) async {
+    _agoraUserRepository.createAgoraUser(username, password);
   }
 
   void loadUserFromLocalStorage() async {

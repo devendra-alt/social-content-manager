@@ -28,7 +28,7 @@ query Query {
     data {
          id
       attributes {
-     
+        chat_group_id
         channel_name
         user_id
       }
@@ -57,6 +57,7 @@ query TimeStampQuery {
       attributes {
         channel_name
         user_id
+        chat_group_id
       }
     }
   }
@@ -127,32 +128,31 @@ updateChannelTimestamp(id:1,data:\$updatetimestamp){
     try {
       QueryResult result = await client.query(
         QueryOptions(
-
           cacheRereadPolicy: CacheRereadPolicy.ignoreAll,
           fetchPolicy: FetchPolicy.networkOnly,
           document: gql(_fetchChannelsTimeStampQuery),
         ),
       );
-      return DateTime.parse(
-        result.data!['channelTimestamps']['data'][0]['attributes']['timestamp']
-      );
+      return DateTime.parse(result.data!['channelTimestamps']['data'][0]
+          ['attributes']['timestamp']);
     } catch (e) {
       print('exception occured $e');
     }
     return DateTime.now();
   }
 
-  Future<int> createChannel(String channelName, int userId) async {
+  Future<int> createChannel(
+      String channelName, int userId, String chatGroupId) async {
     try {
       QueryResult result = await client.mutate(
         MutationOptions(
           fetchPolicy: FetchPolicy.networkOnly,
-
           document: gql(_createChannelAndUpdateTimestamp),
           variables: <String, dynamic>{
             "data": {
               "channel_name": channelName,
               "user_id": userId,
+              "chat_group_id": chatGroupId,
             },
             "updateChannelTimestampData2": {
               "timestamp": DateTime.now().toString()

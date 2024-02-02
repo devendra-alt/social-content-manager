@@ -239,6 +239,17 @@ class Home extends ConsumerWidget {
               },
               child: Text('Ongoing streams'),
             ),
+            SizedBox(height: 20),
+           // ElevatedButton(
+           //   onPressed: () {
+           //     Navigator.of(context).push(
+           //       MaterialPageRoute(
+           //         builder: (_) => MyHome()
+           //       ),
+           //     );
+           //   },
+           //   child: Text('Chat'),
+           // ),
           ],
         ),
       ),

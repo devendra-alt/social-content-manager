@@ -117,8 +117,8 @@ class AgoraController extends StateNotifier<ChannelModel> {
     );
   }
 
-  Future<void> createChannel() async {
-    _channelId = await _channelRepositiry.createChannel(_channelName, userId);
+  Future<void> createChannel(String groupId) async {
+    _channelId = await _channelRepositiry.createChannel(_channelName, userId,groupId);
   }
 
   Future<String> generateToken(

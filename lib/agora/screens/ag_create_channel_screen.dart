@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:social_content_manager/agora/screens/ag_lobby_screen.dart';
 
-
 class AgoraScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -12,11 +11,11 @@ class AgoraScreen extends StatefulWidget {
 class _AgoraScreenState extends State<AgoraScreen> {
   final _channelNameController = TextEditingController();
 
-  void _joinLiveStream(
-      bool isBroadcasting, String channelName) {
+  void _joinLiveStream(bool isBroadcasting, String channelName) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => AgoraLobbyScreen(isBroadcaster: isBroadcasting,channelName: channelName),
+        builder: (_) => AgoraLobbyScreen(
+            isBroadcaster: isBroadcasting, channelName: channelName),
       ),
     );
   }
@@ -42,8 +41,7 @@ class _AgoraScreenState extends State<AgoraScreen> {
               child: Text('Broadcast')),
           ElevatedButton(
               onPressed: () {
-                _joinLiveStream(
-                    false, _channelNameController.text);
+                _joinLiveStream(false, _channelNameController.text);
               },
               child: Text('Join')),
         ],

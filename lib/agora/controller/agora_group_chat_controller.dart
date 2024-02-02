@@ -1,28 +1,31 @@
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:social_content_manager/agora/controller/agora_messaging_controller2.dart';
+import 'package:social_content_manager/agora/message_model.dart';
+import 'package:social_content_manager/agora/repository/fetch_token.dart';
+
 import 'package:social_content_manager/service/auth/controller/auth_controller.dart';
+import 'package:social_content_manager/service/auth/secure.dart';
 
-final agoraGroupChatContollerProvider = StateNotifierProvider.family<
-    AgoraGroupChatController, List<String>, String>((ref, groupId) {
-  return AgoraGroupChatController(
-      groupId: groupId,
-      authController: ref.read(authControllerProvider.notifier));
-});
+final agoraGroupChatContollerProvider =
+    StateNotifierProvider<AgoraGroupChatController, List<Message>>(
+  (ref) {
+    return AgoraGroupChatController(
+        agoraTokenRepo: ref.read(rtcTokenGeneratorRepository),
+        authController: ref.read(authControllerProvider.notifier));
+  },
+);
 
-class AgoraGroupChatController extends StateNotifier<List<String>> {
-  final String _groupId;
+class AgoraGroupChatController extends StateNotifier<List<Message>> {
   final AuthController _authController;
+  final RtcTokenService _agoraTokenRepo;
   late ChatClient agoraChatClient;
   static const String appKey = "611085688#1266091";
-  static const String userId = '20';
-  String token =
-      "007eJxTYGjv2XQ6cPnWhrzri65buUzZYNq6b/Hq/a9WLVmfqBqwT1VHgcHCJNU4LS3FINXCOM3EIik50dLSyCgpLcU41cjC0CLZ0CpwV2pDICPDH8ckRkYGVgZGIATxVRjMTVNTTJJTDHST0kzNdQ0NU1N1E01MTXQtkhIN0kzMLZPNEk0Ag24p6w==";
 
   AgoraGroupChatController(
-      {required String groupId, required AuthController authController})
-      : _groupId = groupId,
+      {required RtcTokenService agoraTokenRepo,
+      required AuthController authController})
+      : _agoraTokenRepo = agoraTokenRepo,
         _authController = authController,
         super(
           [],
@@ -70,6 +73,14 @@ class AgoraGroupChatController extends StateNotifier<List<String>> {
     );
   }
 
+  void leaveGroup(String groupId) {
+    agoraChatClient.groupManager.leaveGroup(groupId);
+    agoraChatClient.groupManager.removeEventHandler('EVENT_HANDLER');
+    agoraChatClient.chatManager.removeMessageEvent('MESSAGE_HANDLER');
+    agoraChatClient.chatManager.removeEventHandler('CHAT_HANDLER');
+    agoraChatClient.removeConnectionEventHandler('MESSAGE_HANDLER');
+  }
+
   ChatGroupEventHandler getChatGroupEventHandler() {
     return ChatGroupEventHandler(
       onInvitationReceivedFromGroup: (String? groupId, String? groupName,
@@ -79,29 +90,36 @@ class AgoraGroupChatController extends StateNotifier<List<String>> {
   }
 
   ChatEventHandler getChatEventHandler() {
-    return ChatEventHandler(onMessagesReceived: (List<ChatMessage> messages) {
-      for (var msg in messages) {
-        if (msg.body.type == MessageType.TXT) {
+    return ChatEventHandler(
+      onMessagesReceived: (List<ChatMessage> messages) {
+        List<Message> updatedList = [];
+        for (var msg in messages) {
           ChatTextMessageBody body = msg.body as ChatTextMessageBody;
-          // displayMessage(body.content, false);
-          showLog("Message from ${msg.from}");
-        } else {
-          String msgType = msg.body.type.name;
-          showLog("Received $msgType message, from ${msg.from}");
+
+          updatedList.add(
+            Message(content: body.content , senderUsername:msg.from ?? 'Guest' ),
+          );
         }
-      }
-    });
+        updatedList+=[...state];
+        state = updatedList;
+      },
+    );
   }
 
   ChatMessageEvent getChatMessageEvent() {
     return ChatMessageEvent(
       onSuccess: (msgId, msg) {
-        //  _addLogToConsole("on message succeed");
+      List<Message> updatedList =[];
+      ChatTextMessageBody message = msg.body as ChatTextMessageBody;
+      updatedList.add(Message(content:message.content, senderUsername:msg.from ?? ''));
+      updatedList+=[...state];
+      state = updatedList;
       },
       onProgress: (msgId, progress) {
         //   _addLogToConsole("on message progress");
       },
       onError: (msgId, msg, error) {
+        print('error');
         //  _addLogToConsole(
         //    "on message failed, code: ${error.code}, desc: ${error.description}",
 //);
@@ -131,18 +149,30 @@ class AgoraGroupChatController extends StateNotifier<List<String>> {
     showLog("Connected");
   }
 
-  Future<void> login() async {
-    try{
-    await agoraChatClient.loginWithAgoraToken(userId, token);
-    }on ChatError catch(e){
-    }
+  Future<String> getUserChatToken() async {
+    return await _agoraTokenRepo.fetchUserToken(_authController.username);
   }
 
-  void sendMessage() async {
-    var msg = ChatMessage.createTxtSendMessage(
-        targetId: '', chatType: ChatType.GroupChat, content: 'hello');
+  Future<void> login() async {
+    try {
+      String? userToken = await readFromSecureStorage('userChatToken');
+      // if (userToken == null) {
+      userToken = await getUserChatToken();
+      writeToSecureStorage('userChatToken', userToken);
+      //}
+      await agoraChatClient.loginWithAgoraToken(
+          _authController.username, userToken);
+    } on ChatError catch (e) {}
+  }
 
-    ChatClient.getInstance.chatManager.removeMessageEvent("UNIQUE_HANDLER_ID");
+  void sendMessage({required String groupId, required String message}) async {
+    var msg = ChatMessage.createTxtSendMessage(
+      targetId: groupId,
+      chatType: ChatType.GroupChat,
+      content: message,
+    );
+
+    // ChatClient.getInstance.chatManager.removeMessageEvent("UNIQUE_HANDLER_ID");
     agoraChatClient.chatManager.sendMessage(msg);
   }
 
@@ -152,12 +182,20 @@ class AgoraGroupChatController extends StateNotifier<List<String>> {
       style: ChatGroupStyle.PublicOpenJoin,
     );
     ChatGroup chatGroup = await agoraChatClient.groupManager
-        .createGroup(options: option, groupName: 'newgroup');
+        .createGroup(options: option, groupName: _authController.username);
 
     return chatGroup.groupId;
   }
 
   Future<void> joinGroupChat(String groupId) async {
     await agoraChatClient.groupManager.joinPublicGroup(groupId);
+  }
+
+  Future<void> destoryChatGroup(String groupId) async {
+    agoraChatClient.groupManager.destroyGroup(groupId);
+    agoraChatClient.groupManager.removeEventHandler('EVENT_HANDLER');
+    agoraChatClient.chatManager.removeMessageEvent('MESSAGE_HANDLER');
+    agoraChatClient.chatManager.removeEventHandler('CHAT_HANDLER');
+    agoraChatClient.removeConnectionEventHandler('MESSAGE_HANDLER');
   }
 }

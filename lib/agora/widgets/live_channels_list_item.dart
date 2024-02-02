@@ -6,11 +6,13 @@ import 'package:social_content_manager/agora/screens/ag_lobby_screen.dart';
 class LiveChannelListItem extends ConsumerWidget {
   final String channelName;
   final int userId;
+  final String groupId;
 
   const LiveChannelListItem({
     super.key,
     required this.channelName,
     required this.userId,
+    required this.groupId,
   });
 
   @override
@@ -26,6 +28,7 @@ class LiveChannelListItem extends ConsumerWidget {
               builder: (_) => AgoraLobbyScreen(
                 isBroadcaster: false,
                 channelName: channelName,
+                groupId:groupId ,
               ),
             ),
           );
