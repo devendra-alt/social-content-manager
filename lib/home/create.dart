@@ -48,8 +48,6 @@ class _CreateState extends State<Create> {
         ),
       });
 
-
-
       final token = await readFromSecureStorage("token");
 
 
@@ -75,7 +73,7 @@ class _CreateState extends State<Create> {
         // Assuming the response contains the URL of the uploaded image
         // print(response.data[0]["id"]);
         setState(() {
-          _imageId=response.data[0]["id"];
+          _imageId = response.data[0]["id"];
         });
         return response.data['image_url'];
       } else {
@@ -100,7 +98,6 @@ class _CreateState extends State<Create> {
   String _address = '';
   String _message = '';
 
-
   DateTime selectedDate = DateTime.now();
 
   Future<void> _selectedDate(BuildContext context) async {
@@ -117,11 +114,9 @@ class _CreateState extends State<Create> {
           pickedDate.year,
           pickedDate.month,
           pickedDate.day,
-
         );
       });
     }
-
   }
 
   @override
@@ -244,14 +239,14 @@ class _CreateState extends State<Create> {
                               full_name
                               address
                               dod
-                              
+
                             }
                           }
                         }
                       }
                     ''';
 
-                    print( new DateFormat("yyyy-MM-dd").format(selectedDate));
+                    print(new DateFormat("yyyy-MM-dd").format(selectedDate));
 
                     final QueryResult result =
                         await GraphQLProvider.of(context).value.mutate(
@@ -261,10 +256,10 @@ class _CreateState extends State<Create> {
                                   'name': _name,
                                   'address': _address,
                                   'message': _message,
-                                  'dod':   new DateFormat("yyyy-MM-dd").format(selectedDate),
-                                  'imageId':_imageId
+                                  'dod': new DateFormat("yyyy-MM-dd")
+                                      .format(selectedDate),
+                                  'imageId': _imageId
                                 },
-
                               ),
                             );
 
