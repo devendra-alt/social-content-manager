@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_content_manager/public/login.dart';
 import 'package:social_content_manager/service/auth/Secure.dart';
-import 'package:social_content_manager/service/providers/userProvider.dart';
+import 'package:social_content_manager/service/auth/controller/auth_controller.dart';
 
 class UserProfilePage extends ConsumerStatefulWidget {
   @override
@@ -18,6 +18,9 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
 
   void logout() async {
     deleteFromSecureStorage("token");
+    deleteFromSecureStorage('id');
+    deleteFromSecureStorage('username');
+    deleteFromSecureStorage('email');
     Navigator.pushAndRemoveUntil(context,
         MaterialPageRoute(builder: (context) => Login()), (route) => false);
   }
@@ -26,9 +29,7 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
-        final userState = ref.watch(userProvider);
-        String _username = userState.username;
-        String _email = userState.email;
+        final userState = ref.watch(authControllerProvider);
         return Scaffold(
           appBar: AppBar(
             title: Text('User Profile'),
@@ -50,12 +51,12 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  _username,
+                  userState.username,
                   style: TextStyle(fontSize: 18),
                 ),
                 SizedBox(height: 10),
                 Text(
-                  _email,
+                  userState.email,
                   style: TextStyle(fontSize: 16),
                 ),
                 SizedBox(height: 20),
