@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:social_content_manager/agora/channel_response_model.dart';
 import 'package:social_content_manager/service/auth/Secure.dart';
@@ -124,21 +127,29 @@ updateChannelTimestamp(id:1,data:\$updatetimestamp){
     return [];
   }
 
-  Future<DateTime> fetchChannelTimeStamp() async {
+  Future<Either<String, DateTime>> fetchChannelTimeStamp() async {
     try {
-      QueryResult result = await client.query(
+      QueryResult result = await client
+          .query(
         QueryOptions(
           cacheRereadPolicy: CacheRereadPolicy.ignoreAll,
           fetchPolicy: FetchPolicy.networkOnly,
           document: gql(_fetchChannelsTimeStampQuery),
         ),
+      )
+          .timeout(Duration(seconds:15), onTimeout: () {
+        throw TimeoutException('Timeout please reload');
+      });
+
+      return right(
+        DateTime.parse(
+          result.data!['channelTimestamps']['data'][0]['attributes']
+              ['timestamp'],
+        ),
       );
-      return DateTime.parse(result.data!['channelTimestamps']['data'][0]
-          ['attributes']['timestamp']);
     } catch (e) {
-      print('exception occured $e');
+      return left(e.toString());
     }
-    return DateTime.now();
   }
 
   Future<int> createChannel(
@@ -168,7 +179,8 @@ updateChannelTimestamp(id:1,data:\$updatetimestamp){
     }
   }
 
-  Future<bool> deleteChannelAndUpdateTimestamp(int channelId) async {
+  Future<Either<String, bool>> deleteChannelAndUpdateTimestamp(
+      int channelId) async {
     try {
       await client.mutate(
         MutationOptions(
@@ -182,9 +194,9 @@ updateChannelTimestamp(id:1,data:\$updatetimestamp){
           },
         ),
       );
-      return true;
+      return Right(true);
     } catch (e) {
-      return false;
+      return left("Exception occured while deleteChannelAndUpdateTimestamp ");
     }
   }
 }

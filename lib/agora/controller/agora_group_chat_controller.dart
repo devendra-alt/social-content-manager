@@ -193,7 +193,8 @@ class AgoraGroupChatController extends StateNotifier<List<Message>> {
 
   Future<void> destoryChatGroup(String groupId) async {
     agoraChatClient.groupManager.destroyGroup(groupId);
-    agoraChatClient.groupManager.removeEventHandler('EVENT_HANDLER');
+    //agoraChatClient.chatManager.deleteRemoteConversation(groupId,conversationType:ChatConversationType.GroupChat,isDeleteMessage:true);
+    agoraChatClient.groupManager.removeEventHandler('EVENT,_HANDLER');
     agoraChatClient.chatManager.removeMessageEvent('MESSAGE_HANDLER');
     agoraChatClient.chatManager.removeEventHandler('CHAT_HANDLER');
     agoraChatClient.removeConnectionEventHandler('MESSAGE_HANDLER');

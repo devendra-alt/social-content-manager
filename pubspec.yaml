@@ -52,9 +52,8 @@ dependencies:
   flutter_hooks: ^0.20.4
   tuple: ^2.0.2
   pull_to_refresh: ^2.0.0
-  agora_rtm: ^1.5.9
   agora_chat_sdk: ^1.2.0
-  flutter_chat_ui: ^1.6.10
+  fpdart: ^1.1.0
   
 
 
@@ -92,11 +91,13 @@ flutter:
     - assets/TranshumansKiddo.png
     - assets/options.png
     - assets/db1.jpg
-    - assets/temple.avif
+    - assets/temple.png
     - assets/kalash.svg
     - assets/live.png
     - assets/eye.png
     - assets/frame2/live_frame.png
+    - assets/empty-box.png
+    - assets/error.gif
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -64,7 +64,7 @@ class Home extends ConsumerWidget {
                       Container(
                         width: MediaQuery.of(context).size.width * 0.45,
                         padding: EdgeInsets.only(left: 16),
-                        height: 200,
+                        height: 210,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,7 +101,7 @@ class Home extends ConsumerWidget {
                         children: <Widget>[
                           Container(
                             width: MediaQuery.of(context).size.width * 0.45,
-                            height: 200,
+                            height: 210,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,

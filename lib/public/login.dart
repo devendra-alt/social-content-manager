@@ -96,14 +96,14 @@ class _LoginState extends ConsumerState<Login> {
                 body: Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage("assets/temple.avif"),
+                      image: AssetImage("assets/temple.png"),
                       fit: BoxFit.cover,
                     ),
                   ),
                   child: Center(
                     child: Container(
                       width: 356,
-                      height: 700,
+                    height:_isLoginTab?500:600,
                       padding: EdgeInsets.all(20),
                       child: Card(
                         color: Theme.of(context).canvasColor.withOpacity(0.9),
