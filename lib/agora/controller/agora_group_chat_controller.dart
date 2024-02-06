@@ -1,9 +1,7 @@
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:social_content_manager/agora/message_model.dart';
 import 'package:social_content_manager/agora/repository/fetch_token.dart';
-
 import 'package:social_content_manager/service/auth/controller/auth_controller.dart';
 import 'package:social_content_manager/service/auth/secure.dart';
 
@@ -42,16 +40,20 @@ class AgoraGroupChatController extends StateNotifier<List<Message>> {
   }
 
   Future<void> setupChatClient() async {
-    ChatOptions options = ChatOptions(
-      acceptInvitationAlways: false,
-      appKey: appKey,
-      autoLogin: false,
-    );
-    agoraChatClient = ChatClient.getInstance;
-    await agoraChatClient.init(options);
+    try {
+      ChatOptions options = ChatOptions(
+        acceptInvitationAlways: false,
+        appKey: appKey,
+        autoLogin: false,
+      );
+      agoraChatClient = ChatClient.getInstance;
+      await agoraChatClient.init(options);
 
 // Notify the SDK that the Ul is ready. After the following method is executed, callbacks within ChatRoomEventHandler and ChatGroupEventHandler can be triggered.
-    await ChatClient.getInstance.startCallback();
+      await ChatClient.getInstance.startCallback();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   void setupListeners() {
@@ -97,10 +99,10 @@ class AgoraGroupChatController extends StateNotifier<List<Message>> {
           ChatTextMessageBody body = msg.body as ChatTextMessageBody;
 
           updatedList.add(
-            Message(content: body.content , senderUsername:msg.from ?? 'Guest' ),
+            Message(content: body.content, senderUsername: msg.from ?? 'Guest'),
           );
         }
-        updatedList+=[...state];
+        updatedList += [...state];
         state = updatedList;
       },
     );
@@ -109,11 +111,12 @@ class AgoraGroupChatController extends StateNotifier<List<Message>> {
   ChatMessageEvent getChatMessageEvent() {
     return ChatMessageEvent(
       onSuccess: (msgId, msg) {
-      List<Message> updatedList =[];
-      ChatTextMessageBody message = msg.body as ChatTextMessageBody;
-      updatedList.add(Message(content:message.content, senderUsername:msg.from ?? ''));
-      updatedList+=[...state];
-      state = updatedList;
+        List<Message> updatedList = [];
+        ChatTextMessageBody message = msg.body as ChatTextMessageBody;
+        updatedList.add(
+            Message(content: message.content, senderUsername: msg.from ?? ''));
+        updatedList += [...state];
+        state = updatedList;
       },
       onProgress: (msgId, progress) {
         //   _addLogToConsole("on message progress");
@@ -162,10 +165,13 @@ class AgoraGroupChatController extends StateNotifier<List<Message>> {
       //}
       await agoraChatClient.loginWithAgoraToken(
           _authController.username, userToken);
-    } on ChatError catch (e) {}
+    } on ChatError {
+      rethrow;
+    }
   }
 
   void sendMessage({required String groupId, required String message}) async {
+    try{
     var msg = ChatMessage.createTxtSendMessage(
       targetId: groupId,
       chatType: ChatType.GroupChat,
@@ -174,6 +180,9 @@ class AgoraGroupChatController extends StateNotifier<List<Message>> {
 
     // ChatClient.getInstance.chatManager.removeMessageEvent("UNIQUE_HANDLER_ID");
     agoraChatClient.chatManager.sendMessage(msg);
+    }catch(e){
+      
+    }
   }
 
   Future<String> createChatGroup() async {
@@ -192,7 +201,7 @@ class AgoraGroupChatController extends StateNotifier<List<Message>> {
   }
 
   Future<void> destoryChatGroup(String groupId) async {
-    agoraChatClient.groupManager.destroyGroup(groupId);
+    await agoraChatClient.groupManager.destroyGroup(groupId);
     //agoraChatClient.chatManager.deleteRemoteConversation(groupId,conversationType:ChatConversationType.GroupChat,isDeleteMessage:true);
     agoraChatClient.groupManager.removeEventHandler('EVENT,_HANDLER');
     agoraChatClient.chatManager.removeMessageEvent('MESSAGE_HANDLER');

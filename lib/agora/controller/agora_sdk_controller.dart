@@ -57,10 +57,14 @@ class AgoraController extends StateNotifier<ChannelModel> {
         );
 
   Future<void> initRtcEngine() async {
-    await [Permission.microphone, Permission.camera].request();
-    _agoraEngine = createAgoraRtcEngine();
-    await _agoraEngine!.initialize(RtcEngineContext(appId: _appId));
-    await _agoraEngine!.enableVideo();
+    try {
+      await [Permission.microphone, Permission.camera].request();
+      _agoraEngine = createAgoraRtcEngine();
+      await _agoraEngine!.initialize(RtcEngineContext(appId: _appId));
+      await _agoraEngine!.enableVideo();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   bool get getIsjoined {
@@ -134,6 +138,7 @@ class AgoraController extends StateNotifier<ChannelModel> {
   }
 
   Future<void> joinChannel() async {
+    try{
     await _agoraEngine!.startPreview();
     String token = await generateToken(
       uid: _authController.userId,
@@ -147,6 +152,9 @@ class AgoraController extends StateNotifier<ChannelModel> {
       uid: _authController.userId,
       options: getChannelMediaOptions(),
     );
+    }catch(e){
+      throw Exception('unable to join live stream');
+    }
   }
 
   AgoraVideoView remoteVideoView(int remoteUid) {
@@ -181,7 +189,6 @@ class AgoraController extends StateNotifier<ChannelModel> {
       if (_isBroadcaster) {
         await _channelRepositiry.deleteChannelAndUpdateTimestamp(_channelId);
       }
-      Navigator.of(_buildContext).pop();
     } catch (e) {
       //throw AgoraException(message: 'Some error occured while leaving channel');
     }

@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:social_content_manager/agora/ag_credentials.dart';
 import 'package:social_content_manager/agora/channel_response_model.dart';
 import 'package:social_content_manager/service/auth/Secure.dart';
 
@@ -64,7 +66,7 @@ query TimeStampQuery {
       }
     }
   }
-  updateChannelTimestamp(id:1, data: \$updateChannelTimestampData2) {
+  updateChannelTimestamp(id:3  , data: \$updateChannelTimestampData2) {
     data {
       attributes {
         timestamp
@@ -83,7 +85,7 @@ deleteChannel(id:\$channelId){
     }
   }
 }
-updateChannelTimestamp(id:1,data:\$updatetimestamp){
+updateChannelTimestamp(id:3,data:\$updatetimestamp){
   
   data{
     attributes{
@@ -137,7 +139,7 @@ updateChannelTimestamp(id:1,data:\$updatetimestamp){
           document: gql(_fetchChannelsTimeStampQuery),
         ),
       )
-          .timeout(Duration(seconds:15), onTimeout: () {
+          .timeout(Duration(seconds: 15), onTimeout: () {
         throw TimeoutException('Timeout please reload');
       });
 

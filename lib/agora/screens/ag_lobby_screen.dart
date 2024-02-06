@@ -51,6 +51,19 @@ class _AgoraLobbyScreen extends ConsumerState<AgoraLobbyScreen> {
           {
             createChannelAndChatGroup(),
           }
+        else
+          {
+            Navigator.of(context).pop(),
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Something went wrong',
+                  style: TextStyle(color: Colors.white),
+                ),
+                backgroundColor: Colors.redAccent,
+              ),
+            )
+          }
       },
     );
   }
@@ -67,10 +80,14 @@ class _AgoraLobbyScreen extends ConsumerState<AgoraLobbyScreen> {
   }
 
   Future<bool> initAgoraEngine() async {
-    await sdk.initRtcEngine();
-    await sdk.configChannel();
-    await sdk.joinChannel();
-    return true;
+    try {
+      await sdk.initRtcEngine();
+      await sdk.configChannel();
+      await sdk.joinChannel();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<bool> initAgoraChat() async {
@@ -118,12 +135,7 @@ class _AgoraLobbyScreen extends ConsumerState<AgoraLobbyScreen> {
                         alignment: Alignment.topRight,
                         child: IconButton(
                           onPressed: () {
-                            sdk.leave();
-                            if (widget.isBroadcaster) {
-                              agoraChat.destoryChatGroup(widget.groupId);
-                            } else {
-                              agoraChat.leaveGroup(widget.groupId);
-                            }
+                            Navigator.of(context).pop();
                           },
                           icon: Icon(
                             size: 30,
